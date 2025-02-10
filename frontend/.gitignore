@@ -1,0 +1,73 @@
+# Node modules (dependencies)
+node_modules/
+npm-debug.log*
+yarn-error.log
+yarn-debug.log
+
+# Metro Bundler cache
+metro-bundler-cache/
+metro-cache/
+
+# React Native Android build files
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/local.properties
+
+# React Native iOS build files
+ios/Pods/
+ios/build/
+ios/.DS_Store
+ios/*.xcodeproj/project.xcworkspace/
+ios/*.xcworkspace/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/xcshareddata/
+ios/DerivedData/
+
+# Watchman files (used in Mac)
+.watchmanconfig
+
+# Temporary files & logs
+.env
+*.log
+*.swp
+*.swo
+*.swn
+*.tmp
+*.lock
+.vscode/
+.idea/
+*.iml
+
+# Generated files
+babel.config.js
+package-lock.json
+yarn.lock
+
+# Expo-related files
+.expo/
+.expo-shared/
+
+# Fastlane files (for deployment)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# Firebase & Google Services (for Firebase)
+android/app/google-services.json
+ios/GoogleService-Info.plist
+
+# Frontend-specific ignores
+frontend/node_modules/        # Avoid uploading frontend dependencies
+frontend/build/               # Ignore build files
+frontend/.yarn/               # Ignore Yarn cache
+frontend/.pnp/                # Ignore Yarn Plug'n'Play files
+frontend/.expo/               # Ignore Expo project files
+frontend/.expo-shared/
+frontend/.cache/              # Ignore cache files
+frontend/debug.log
+frontend/npm-debug.log
+frontend/yarn-error.log
+frontend/yarn-debug.log
