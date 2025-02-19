@@ -22,6 +22,21 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("password");
+        return ResponseEntity.ok(userService.resetPassword(token, newPassword));
+    }
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String token = userService.generateResetToken(email);
+        return ResponseEntity.ok("Reset token: " + token);
+    }
+
     @PutMapping("/{id}/role")
     public ResponseEntity<UserResponse> changeUserRole(@PathVariable Long id, @RequestBody Map<String, String> request) {
         String newRole = request.get("role");
@@ -42,7 +57,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<User>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<Optional<UserResponse>> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 

@@ -31,8 +31,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/**").permitAll() // Permitem acces la autentificare și înregistrare
+                        .requestMatchers("/api/users/forgot-password", "/api/users/reset-password").permitAll() // ✅ Permitem acces liber
+                        .requestMatchers("/api/users/**").hasRole("ADMIN") // Doar ADMIN poate accesa alte endpoint-uri ale userilor
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -40,6 +41,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
 
     @Bean
