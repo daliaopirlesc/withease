@@ -23,6 +23,12 @@ public class UserService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
+    public UserResponse getUserProfile(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name());
+    }
 
     public UserResponse changeUserRole(Long id, String newRole) {
         User user = userRepository.findById(id)
@@ -85,7 +91,7 @@ public class UserService {
 
         passwordResetTokenRepository.deleteByUser(user);
 
-        // Generăm un token nou
+
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(token);
