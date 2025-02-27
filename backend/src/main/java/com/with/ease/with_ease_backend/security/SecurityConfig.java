@@ -34,6 +34,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/mood-log/**").authenticated()
+                        .requestMatchers("/api/gratitude-journal/**").authenticated()
+                        .requestMatchers("/api/stress-journal/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
