@@ -36,6 +36,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/mood-log/**").authenticated()
                         .requestMatchers("/api/gratitude-journal/**").authenticated()
                         .requestMatchers("/api/stress-journal/**").authenticated()
+                        .requestMatchers("/api/habits/**").authenticated()
+                        .requestMatchers("/api/challenges/**").authenticated()
+                        .requestMatchers("/api/meditations/**").authenticated()
+
+
+
 
                         .anyRequest().authenticated()
                 )
