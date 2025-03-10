@@ -39,6 +39,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/habits/**").authenticated()
                         .requestMatchers("/api/challenges/**").authenticated()
                         .requestMatchers("/api/meditations/**").authenticated()
+                        .requestMatchers("/api/insights/**").authenticated()
+
 
 
 

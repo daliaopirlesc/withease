@@ -3,8 +3,10 @@ package com.with.ease.with_ease_backend.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+
+import java.time.LocalDate;
+
 @Entity
-@Table(name = "challenges")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,15 +20,14 @@ public class Challenge {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
     private String title;
-
-    @Column(length = 500)
     private String description;
-
-    @Column(nullable = false)
-    private int requiredStreaks;
-
-    @Column(nullable = false)
     private boolean completed;
+
+    @Column(name = "completion_date")
+    private LocalDate completionDate;
+
+    @Column(name = "required_streaks")
+    private int requiredStreaks;
 }
+

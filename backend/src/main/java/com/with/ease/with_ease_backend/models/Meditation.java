@@ -3,6 +3,8 @@ package com.with.ease.with_ease_backend.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "meditations")
 @Getter
@@ -29,4 +31,7 @@ public class Meditation {
 
     @Column(nullable = false)
     private boolean completed;
+
+    @Column(name = "completion_date")
+    private LocalDate completionDate;
 }

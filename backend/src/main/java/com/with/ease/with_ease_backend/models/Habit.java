@@ -28,4 +28,7 @@ public class Habit {
 
     @Column(nullable = false)
     private boolean completed;
+
+    @Column(name = "completion_date")
+    private LocalDate completionDate;
 }
