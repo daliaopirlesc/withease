@@ -2,6 +2,7 @@ package com.with.ease.with_ease_backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -40,6 +41,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/challenges/**").authenticated()
                         .requestMatchers("/api/meditations/**").authenticated()
                         .requestMatchers("/api/insights/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/reminders/**").authenticated()
+
+
 
 
 
