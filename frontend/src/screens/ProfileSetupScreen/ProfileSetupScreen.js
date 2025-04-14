@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; 
+import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileSetupScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -9,7 +10,13 @@ const ProfileSetupScreen = ({ navigation }) => {
   const [occupation, setOccupation] = useState('');
   const [healthInfo, setHealthInfo] = useState('');
 
-  const onSavePressed = () => {
+  const onSavePressed = async () => {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      alert('No token found. Please log in again.');
+      return;
+    }
+
     const profileData = {
       name,
       age,
@@ -18,13 +25,30 @@ const ProfileSetupScreen = ({ navigation }) => {
       healthInfo,
     };
 
-    console.log('Profile Saved:', profileData);
-    navigation.replace('GoalsSetup'); 
+    try {
+      const response = await fetch(`http://192.168.1.135:8080/api/users/me`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigation.replace('GoalsSetup');
+      } else {
+        alert('Failed to save profile');
+      }
+    } catch (error) {
+      alert('An error occurred while saving your profile.');
+    }
   };
 
   const onSkipPressed = () => {
-    console.log('Profile Setup Skipped');
-    navigation.replace('GoalsSetup'); 
+    navigation.replace('GoalsSetup');
   };
 
   return (
@@ -66,7 +90,7 @@ const ProfileSetupScreen = ({ navigation }) => {
 
       <TextInput
         style={[styles.input, styles.multilineInput]}
-        placeholder="Health Information (e.g., stress-related conditions)"
+        placeholder="Health Information"
         value={healthInfo}
         onChangeText={setHealthInfo}
         multiline

@@ -1,51 +1,83 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = ({ navigation }) => {
-  const [userInfo] = useState({
-    name: 'John Doe',
-    age: 28,
-    gender: 'Male',
-    occupation: 'Software Engineer',
-    healthInfo: 'No specific conditions',
-    goals: ['Reduce Stress', 'Meditate Daily', 'Sleep Better'],
-    streak: 5, 
-  });
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch('http://192.168.1.135:8080/api/users/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setUserInfo(data);
+        } else {
+          console.warn('Failed to load user:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (!userInfo) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.greeting}>Loading user...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-   
-      <Text style={styles.greeting}>Hello, {userInfo.name}!</Text>
+      <Text style={styles.greeting}>Hello, {userInfo.username}!</Text>
       <Text style={styles.motivation}>Stay calm and take one day at a time.</Text>
 
       <View style={styles.streakContainer}>
         <View style={styles.streakBadge}>
-          <Text style={styles.streakText}>{userInfo.streak} Days</Text>
+          <Text style={styles.streakText}>{userInfo.streak || 0} Days</Text>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>Profile Information</Text>
-          <Text style={styles.infoText}>Name: {userInfo.name}</Text>
-          <Text style={styles.infoText}>Age: {userInfo.age}</Text>
-          <Text style={styles.infoText}>Gender: {userInfo.gender}</Text>
-          <Text style={styles.infoText}>Occupation: {userInfo.occupation}</Text>
-          <Text style={styles.infoText}>Health Info: {userInfo.healthInfo}</Text>
+          <Text style={styles.infoText}>Username: {userInfo.username}</Text>
+          <Text style={styles.infoText}>Email: {userInfo.email}</Text>
+          <Text style={styles.infoText}>Role: {userInfo.role}</Text>
+          <Text style={styles.infoText}>Name: {userInfo.name || 'Not set'}</Text>
+          <Text style={styles.infoText}>Age: {userInfo.age || 'Not set'}</Text>
+          <Text style={styles.infoText}>Gender: {userInfo.gender || 'Not set'}</Text>
+          <Text style={styles.infoText}>Occupation: {userInfo.occupation || 'Not set'}</Text>
+          <Text style={styles.infoText}>Health Info: {userInfo.healthInfo || 'Not set'}</Text>
           <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ProfileSetup')}>
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.goalsCard}>
-          <Text style={styles.infoTitle}>Your Top Goals</Text>
-          {userInfo.goals.map((goal, index) => (
-            <Text key={index} style={styles.goalText}>
-              • {goal}
-            </Text>
-          ))}
+        <Text style={styles.infoTitle}>Your Top Goals</Text>
+              {userInfo.goals && userInfo.goals.length > 0 ? (
+              userInfo.goals.map((goal, index) => (
+        <Text key={index} style={styles.goalText}>• {goal}</Text>
+         ))
+        ) : (
+        <Text style={styles.goalText}>No goals set yet.</Text>
+         )}
         </View>
+
       </ScrollView>
 
       <View style={styles.bottomNav}>
@@ -87,10 +119,10 @@ const styles = StyleSheet.create({
   },
   streakContainer: {
     alignItems: 'center',
-    marginVertical: 20, 
+    marginVertical: 20,
   },
   streakBadge: {
-    backgroundColor: '#ffcc00', 
+    backgroundColor: '#ffcc00',
     borderRadius: 50,
     paddingVertical: 15,
     paddingHorizontal: 30,

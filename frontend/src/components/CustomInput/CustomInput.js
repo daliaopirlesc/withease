@@ -5,9 +5,9 @@ const CustomInput = ({ value, setValue, placeholder, secureTextEntry }) => {
   return (
     <View style={styles.container}>
       <TextInput
+        placeholder={placeholder}
         value={value}
         onChangeText={setValue}
-        placeholder={placeholder}
         secureTextEntry={secureTextEntry}
         style={styles.input}
       />

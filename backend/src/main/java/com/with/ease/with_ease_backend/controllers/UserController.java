@@ -20,11 +20,33 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
+    @PutMapping("/me")
+    public ResponseEntity<User> updateUserProfile(@RequestBody User updatedUser, Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User currentUser = userService.getUserByEmail(email);
+
+        currentUser.setName(updatedUser.getName());
+        currentUser.setAge(updatedUser.getAge());
+        currentUser.setGender(updatedUser.getGender());
+        currentUser.setOccupation(updatedUser.getOccupation());
+        currentUser.setHealthInfo(updatedUser.getHealthInfo());
+
+        return ResponseEntity.ok(userService.save(currentUser));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {
         String email = ((UserDetails) authentication.getPrincipal()).getUsername();
         return ResponseEntity.ok(userService.getUserProfile(email));
     }
+
+    @PutMapping("/me/goals")
+    public ResponseEntity<String> updateUserGoals(@RequestBody List<String> goals, Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        userService.updateUserGoals(email, goals);
+        return ResponseEntity.ok("Goals updated successfully.");
+    }
+
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {

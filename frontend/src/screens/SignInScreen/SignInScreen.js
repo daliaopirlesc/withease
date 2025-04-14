@@ -2,14 +2,37 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity, Image } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignInScreen = ({ navigation }) => {
   const { height } = useWindowDimensions();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const onSignInPressed = () => {
-    console.log('Sign In pressed');
+  const onSignInPressed = async () => {
+    try {
+      const response = await fetch('http://192.168.1.135:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await AsyncStorage.setItem('token', data.token);
+        navigation.navigate('Profile');
+      } else {
+        alert('Login failed: ' + (data.message || 'Invalid credentials'));
+      }
+    } catch (error) {
+      alert('Something went wrong. Please try again.');
+    }
   };
 
   const onForgotPasswordPressed = () => {
@@ -29,9 +52,9 @@ const SignInScreen = ({ navigation }) => {
       />
       <Text style={styles.title}>Welcome Back!</Text>
       <CustomInput
-        placeholder="Username"
-        value={username}
-        setValue={setUsername}
+        placeholder="Email"
+        value={email}
+        setValue={setEmail}
       />
       <CustomInput
         placeholder="Password"

@@ -18,10 +18,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+
+
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -32,7 +39,19 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name());
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getName(),
+                user.getAge(),
+                user.getGender(),
+                user.getOccupation(),
+                user.getHealthInfo(),
+                user.getGoals().stream().toList()
+        );
+
     }
 
     public UserResponse changeUserRole(Long id, String newRole) {
@@ -46,7 +65,19 @@ public class UserService {
         user.setRole(Role.valueOf(newRole.toUpperCase()));
         userRepository.save(user);
 
-        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name());
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getName(),
+                user.getAge(),
+                user.getGender(),
+                user.getOccupation(),
+                user.getHealthInfo(),
+                user.getGoals().stream().toList()
+        );
+
     }
 
 
@@ -62,14 +93,32 @@ public class UserService {
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name()))
+                .map(user -> new UserResponse(user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getRole().name(),
+                        user.getName(),
+                        user.getAge(),
+                        user.getGender(),
+                        user.getOccupation(),
+                        user.getHealthInfo(),
+                        user.getGoals().stream().toList()))
                 .collect(Collectors.toList());
     }
 
 
     public Optional<UserResponse> getUserById(Long id) {
         return userRepository.findById(id)
-                .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name()));
+                .map(user -> new UserResponse(user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getRole().name(),
+                        user.getName(),
+                        user.getAge(),
+                        user.getGender(),
+                        user.getOccupation(),
+                        user.getHealthInfo(),
+                        user.getGoals().stream().toList()));
     }
 
 
@@ -121,4 +170,13 @@ public class UserService {
 
         return "Password reset successfully!";
     }
+
+    public void updateUserGoals(String email, List<String> goals) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setGoals(goals);
+        userRepository.save(user);
+    }
+
 }

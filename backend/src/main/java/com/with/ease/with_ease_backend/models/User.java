@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 @Entity
@@ -28,6 +29,21 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
+    @Column
+    private String name;
+
+    @Column
+    private Integer age;
+
+    @Column
+    private String gender;
+
+    @Column
+    private String occupation;
+
+    @Column
+    private String healthInfo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -68,4 +84,10 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @ElementCollection
+    @CollectionTable(name = "user_goals", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "goal")
+    private List<String> goals;
+
 }
