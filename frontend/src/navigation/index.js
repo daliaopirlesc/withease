@@ -13,6 +13,9 @@ import LogMoodScreen from '../screens/LogMoodScreen';
 import InsightsScreen from '../screens/InsightsScreen';
 import {DiscoverScreen, BreatheRelaxScreen, GratitudeJournalScreen, EveningWindDownScreen, FocusBoosterScreen, StressJournalScreen, BodyScanMeditationScreen, CalmBreakScreen, GuidedMeditationScreen, MindfulCheckInScreen, MotivationalChallengesScreen, ProductivityPlannerScreen, ReflectAndGrowScreen } from '../screens/DiscoverScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import RemindersScreen from '../screens/RemindersScreen';
+import CreateReminderScreen from '../screens/CreateReminderScreen';
+
 
 
 
@@ -21,7 +24,7 @@ const Stack = createStackNavigator();
 const Navigation = () => {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="SignUp">
+        <Stack.Navigator initialRouteName="Home">
 
       
 
@@ -30,6 +33,21 @@ const Navigation = () => {
           component={HomeScreen} 
           options={{ headerShown: false }} 
         />
+
+        <Stack.Screen 
+          name="CreateReminder" 
+          component={CreateReminderScreen} 
+          options={{ headerShown: false }} 
+        />
+
+
+        
+        <Stack.Screen 
+          name="Reminders" 
+          component={RemindersScreen} 
+          options={{ headerShown: false }} 
+        />
+
 
           <Stack.Screen 
           name="Profile" 

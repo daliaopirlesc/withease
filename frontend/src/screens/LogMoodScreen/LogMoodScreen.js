@@ -8,6 +8,8 @@ import {
   Dimensions,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const { width } = Dimensions.get('window');
 
@@ -40,25 +42,54 @@ const LogMoodScreen = ({ navigation }) => {
     { id: '6', label: 'Other' },
   ];
 
-  const onSavePressed = () => {
+  const onSavePressed = async () => {
     if (!selectedMood || !selectedCause) {
       alert('Please complete all fields before saving.');
       return;
     }
-
-    const cause = selectedCause === '6' ? customCause : causes.find((c) => c.id === selectedCause).label;
-
+  
+    const token = await AsyncStorage.getItem('token');
+    const cause =
+      selectedCause === '6'
+        ? customCause
+        : causes.find((c) => c.id === selectedCause).label;
+  
+    const mood = moods.find((mood) => mood.id === selectedMood).label;
+  
     const moodLog = {
+      mood,
       stressLevel,
-      mood: moods.find((mood) => mood.id === selectedMood).label,
       cause,
       notes,
     };
+  
+    try {
+      console.log('Sending mood log:', moodLog);
+console.log('Token:', token);
 
-    console.log('Mood Log:', moodLog);
-
-    navigation.goBack(); 
+      const response = await fetch('http://192.168.1.135:8080/api/mood-log', 
+        {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(moodLog),
+      });
+  
+      if (response.ok) {
+        console.log('Mood saved!');
+        navigation.goBack();
+      } else {
+        console.warn('Failed to save mood');
+        alert('Something went wrong.');
+      }
+    } catch (error) {
+      console.error('Error saving mood:', error);
+      alert('Error connecting to server.');
+    }
   };
+  
 
   return (
     <View style={styles.container}>

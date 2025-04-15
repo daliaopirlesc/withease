@@ -19,9 +19,16 @@ public class MoodLogController {
     private final MoodLogService moodLogService;
 
     @PostMapping
-    public ResponseEntity<String> logMood(Authentication authentication, @RequestBody Map<String, String> request) {
+    public ResponseEntity<String> logMood(Authentication authentication, @RequestBody Map<String, Object> request) {
+        System.out.println("Received mood POST");
         String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        moodLogService.logMood(email, request.get("mood"));
+        String mood = (String) request.get("mood");
+        int stressLevel = (int) request.get("stressLevel");
+        String cause = (String) request.get("cause");
+        String notes = (String) request.get("notes");
+        moodLogService.logMood(email, mood, stressLevel, cause, notes);
+
+
         return ResponseEntity.ok("Mood logged successfully");
     }
 

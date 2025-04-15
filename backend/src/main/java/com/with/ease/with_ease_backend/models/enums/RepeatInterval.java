@@ -4,5 +4,6 @@ public enum RepeatInterval {
     DAILY,
     WEEKLY,
     MONTHLY,
-    YEARLY
+    YEARLY,
+    ONCE
 }

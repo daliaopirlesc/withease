@@ -24,17 +24,21 @@ const HomeScreen = ({ navigation }) => {
         <ProgressBar progress={stressLevel} color="#00796b" style={styles.progressBar} />
         <Text style={styles.stressLevelText}>{Math.round(stressLevel * 100)}% Stress</Text>
 
- 
         <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LogMood')}>
-            <Icon name="emoticon-happy-outline" size={30} color="#00796b" />
-            <Text style={styles.actionText}>Log Mood</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Insights')}>
-            <Icon name="chart-line" size={30} color="#00796b" />
-            <Text style={styles.actionText}>View Insights</Text>
-          </TouchableOpacity>
-        </View>
+  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LogMood')}>
+    <Icon name="emoticon-happy-outline" size={30} color="#00796b" />
+    <Text style={styles.actionText}>Log Mood</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Insights')}>
+    <Icon name="chart-line" size={30} color="#00796b" />
+    <Text style={styles.actionText}>View Insights</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Reminders')}>
+    <Icon name="bell-ring-outline" size={30} color="#00796b" />
+    <Text style={styles.actionText}>Reminders</Text>
+  </TouchableOpacity>
+</View>
+
 
         <View style={styles.dailyTip}>
           <Text style={styles.tipTitle}>Daily Tip</Text>

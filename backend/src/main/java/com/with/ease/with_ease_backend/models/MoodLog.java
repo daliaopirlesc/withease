@@ -24,5 +24,14 @@ public class MoodLog {
     private String mood;
 
     @Column(nullable = false)
+    private int stressLevel;
+
+    @Column(nullable = false)
+    private String cause;
+
+    @Column(length = 1000)
+    private String notes;
+
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 }
