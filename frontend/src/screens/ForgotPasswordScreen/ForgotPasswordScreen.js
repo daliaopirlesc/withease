@@ -6,15 +6,33 @@ import CustomButton from '../../components/CustomButton';
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
 
-  const onSendPressed = () => {
+  const onSendPressed = async () => {
     if (!email) {
       alert('Please enter your email');
       return;
     }
-    console.log('Password reset link sent to:', email);
-    navigation.navigate('SignIn'); 
+  
+    try {
+      const response = await fetch('http://192.168.1.135:8080/api/users/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+  
+      if (response.ok) {
+        alert('A reset code has been sent to your email.');
+        navigation.navigate('ResetPassword');
+      } else {
+        const data = await response.json().catch(() => ({}));
+        alert(data.message || 'Something went wrong.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Network error');
+    }
   };
-
+  
+  
   const onSignInPressed = () => {
     navigation.navigate('SignIn'); 
   };

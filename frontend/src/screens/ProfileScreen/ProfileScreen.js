@@ -21,12 +21,8 @@ const ProfileScreen = ({ navigation }) => {
         const data = await response.json();
         if (response.ok) {
           setUserInfo(data);
-        } else {
-          console.warn('Failed to load user:', data.message);
         }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
+      } catch (error) {}
     };
 
     fetchUser();
@@ -62,22 +58,26 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.infoText}>Gender: {userInfo.gender || 'Not set'}</Text>
           <Text style={styles.infoText}>Occupation: {userInfo.occupation || 'Not set'}</Text>
           <Text style={styles.infoText}>Health Info: {userInfo.healthInfo || 'Not set'}</Text>
+
           <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ProfileSetup')}>
             <Text style={styles.editButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.historyButton} onPress={() => navigation.navigate('MoodHistory')}>
+            <Text style={styles.historyButtonText}>View Mood History</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.goalsCard}>
-        <Text style={styles.infoTitle}>Your Top Goals</Text>
-              {userInfo.goals && userInfo.goals.length > 0 ? (
-              userInfo.goals.map((goal, index) => (
-        <Text key={index} style={styles.goalText}>• {goal}</Text>
-         ))
-        ) : (
-        <Text style={styles.goalText}>No goals set yet.</Text>
-         )}
+          <Text style={styles.infoTitle}>Your Top Goals</Text>
+          {userInfo.goals && userInfo.goals.length > 0 ? (
+            userInfo.goals.map((goal, index) => (
+              <Text key={index} style={styles.goalText}>• {goal}</Text>
+            ))
+          ) : (
+            <Text style={styles.goalText}>No goals set yet.</Text>
+          )}
         </View>
-
       </ScrollView>
 
       <View style={styles.bottomNav}>
@@ -168,6 +168,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  historyButton: {
+    backgroundColor: '#4db6ac',
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  historyButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',

@@ -9,26 +9,28 @@ import com.with.ease.with_ease_backend.repositories.PasswordResetTokenRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-
-
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
     public User save(User user) {
         return userRepository.save(user);
     }
-
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -38,7 +40,6 @@ public class UserService {
     public UserResponse getUserProfile(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         return new UserResponse(
                 user.getId(),
                 user.getUsername(),
@@ -51,20 +52,16 @@ public class UserService {
                 user.getHealthInfo(),
                 user.getGoals().stream().toList()
         );
-
     }
 
     public UserResponse changeUserRole(Long id, String newRole) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         if (!newRole.equalsIgnoreCase("USER") && !newRole.equalsIgnoreCase("ADMIN")) {
             throw new RuntimeException("Invalid role: " + newRole);
         }
-
         user.setRole(Role.valueOf(newRole.toUpperCase()));
         userRepository.save(user);
-
         return new UserResponse(
                 user.getId(),
                 user.getUsername(),
@@ -77,23 +74,25 @@ public class UserService {
                 user.getHealthInfo(),
                 user.getGoals().stream().toList()
         );
-
     }
 
-
+    @Transactional
     public User createUser(User user) {
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser.isPresent()) {
             throw new RuntimeException("Email already exists!");
         }
+        if (user.getRole() == null) {
+            user.setRole(Role.USER);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new UserResponse(user.getId(),
+                .map(user -> new UserResponse(
+                        user.getId(),
                         user.getUsername(),
                         user.getEmail(),
                         user.getRole().name(),
@@ -106,10 +105,10 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-
     public Optional<UserResponse> getUserById(Long id) {
         return userRepository.findById(id)
-                .map(user -> new UserResponse(user.getId(),
+                .map(user -> new UserResponse(
+                        user.getId(),
                         user.getUsername(),
                         user.getEmail(),
                         user.getRole().name(),
@@ -121,32 +120,29 @@ public class UserService {
                         user.getGoals().stream().toList()));
     }
 
-
+    @Transactional
     public User updateUser(Long id, User userDetails) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         user.setUsername(userDetails.getUsername());
         user.setEmail(userDetails.getEmail());
         user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
-
         return userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
-
-
+    @Transactional
     public String generateResetToken(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-
         passwordResetTokenRepository.deleteByUser(user);
 
+        String token = String.format("%06d", new Random().nextInt(999999));
 
-        String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(token);
         resetToken.setUser(user);
@@ -154,29 +150,28 @@ public class UserService {
 
         passwordResetTokenRepository.save(resetToken);
 
+        emailService.sendResetEmail(email, token);
+
         return token;
     }
 
+
+    @Transactional
     public String resetPassword(String token, String newPassword) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
-
         User user = resetToken.getUser();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-
-
         passwordResetTokenRepository.delete(resetToken);
-
         return "Password reset successfully!";
     }
 
+    @Transactional
     public void updateUserGoals(String email, List<String> goals) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         user.setGoals(goals);
         userRepository.save(user);
     }
-
 }

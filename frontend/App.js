@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
+import * as Linking from 'expo-linking';
 import Navigation from './src/navigation';
 
 SplashScreen.preventAutoHideAsync();
@@ -20,6 +21,8 @@ const fetchFonts = async () => {
     'Caveat': require('./assets/fonts/Caveat-Regular.ttf'),
   });
 };
+
+const prefix = Linking.createURL('/');
 
 const App = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -46,7 +49,16 @@ const App = () => {
     return null;
   }
 
-  return <Navigation />;
+  const linking = {
+    prefixes: [prefix, 'withease://'],
+    config: {
+      screens: {
+        ResetPassword: 'reset-password',
+      },
+    },
+  };
+
+  return <Navigation linking={linking} />;
 };
 
 export default App;

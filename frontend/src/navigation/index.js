@@ -15,6 +15,8 @@ import {DiscoverScreen, BreatheRelaxScreen, GratitudeJournalScreen, EveningWindD
 import ProfileScreen from '../screens/ProfileScreen';
 import RemindersScreen from '../screens/RemindersScreen';
 import CreateReminderScreen from '../screens/CreateReminderScreen';
+import MoodHistoryScreen from '../screens/MoodHistoryScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 
 
@@ -24,7 +26,7 @@ const Stack = createStackNavigator();
 const Navigation = () => {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator initialRouteName="SignUp">
 
       
 
@@ -34,13 +36,24 @@ const Navigation = () => {
           options={{ headerShown: false }} 
         />
 
+          <Stack.Screen 
+          name="ResetPassword" 
+          component={ResetPasswordScreen} 
+          options={{ headerShown: false }} 
+        />
+
+
         <Stack.Screen 
           name="CreateReminder" 
           component={CreateReminderScreen} 
           options={{ headerShown: false }} 
         />
 
-
+        <Stack.Screen 
+          name="MoodHistory" 
+          component={MoodHistoryScreen} 
+          options={{ headerShown: false }} 
+        />
         
         <Stack.Screen 
           name="Reminders" 
