@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
+
 
 
 const { width } = Dimensions.get('window');
@@ -67,7 +69,7 @@ const LogMoodScreen = ({ navigation }) => {
       console.log('Sending mood log:', moodLog);
 console.log('Token:', token);
 
-      const response = await fetch('http://192.168.1.135:8080/api/mood-log', 
+      const response = await fetch(`${API_BASE_URL}/api/mood-log`, 
         {
         method: 'POST',
         headers: {

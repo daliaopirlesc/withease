@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
+import { API_BASE_URL } from '../../config/config';
 
 const ResetPasswordScreen = ({ navigation }) => {
   const route = useRoute();
@@ -32,7 +33,7 @@ const ResetPasswordScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch('http://192.168.1.135:8080/api/users/reset-password', {
+      const response = await fetch(`${API_BASE_URL}/api/users/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password }),

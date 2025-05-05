@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { ProgressBar } from 'react-native-paper'; 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ProgressBar } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
-  const userName = 'John'; 
-  const stressLevel = 0.6; 
+  const [userName, setUserName] = useState('');
+  const stressLevel = 0.6;
+  const dailyTip = 'Drink water and take a short walk.';
 
-  const dailyTip = "Drink water and take a short walk."; 
+  useEffect(() => {
+    const loadUserName = async () => {
+      const name = await AsyncStorage.getItem('userName');
+      if (name) setUserName(name);
+    };
+    loadUserName();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -19,26 +27,24 @@ const HomeScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.mainContent}>
-     
         <Text style={styles.sectionTitle}>Your Stress Level</Text>
         <ProgressBar progress={stressLevel} color="#00796b" style={styles.progressBar} />
         <Text style={styles.stressLevelText}>{Math.round(stressLevel * 100)}% Stress</Text>
 
         <View style={styles.quickActions}>
-  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LogMood')}>
-    <Icon name="emoticon-happy-outline" size={30} color="#00796b" />
-    <Text style={styles.actionText}>Log Mood</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Insights')}>
-    <Icon name="chart-line" size={30} color="#00796b" />
-    <Text style={styles.actionText}>View Insights</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Reminders')}>
-    <Icon name="bell-ring-outline" size={30} color="#00796b" />
-    <Text style={styles.actionText}>Reminders</Text>
-  </TouchableOpacity>
-</View>
-
+          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LogMood')}>
+            <Icon name="emoticon-happy-outline" size={30} color="#00796b" />
+            <Text style={styles.actionText}>Log Mood</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Insights')}>
+            <Icon name="chart-line" size={30} color="#00796b" />
+            <Text style={styles.actionText}>View Insights</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Reminders')}>
+            <Icon name="bell-ring-outline" size={30} color="#00796b" />
+            <Text style={styles.actionText}>Reminders</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.dailyTip}>
           <Text style={styles.tipTitle}>Daily Tip</Text>
@@ -71,9 +77,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   header: {
-    marginTop: 60, 
+    marginTop: 60,
     marginBottom: 20,
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   greeting: {
     fontSize: 24,
@@ -143,10 +149,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ccc',
     backgroundColor: '#fff',
-    width: '110%', 
+    width: '110%',
     position: 'absolute',
     bottom: 0,
-    left: 0, 
+    left: 0,
   },
   navItem: {
     alignItems: 'center',

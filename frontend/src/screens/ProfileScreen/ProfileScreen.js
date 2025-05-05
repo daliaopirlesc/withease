@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
 const ProfileScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
@@ -12,7 +13,7 @@ const ProfileScreen = ({ navigation }) => {
       if (!token) return;
 
       try {
-        const response = await fetch('http://192.168.1.135:8080/api/users/me', {
+        const response = await fetch(`${API_BASE_URL}/api/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

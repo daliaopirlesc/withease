@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
+import { API_BASE_URL } from '../../config/config';
 
 const SignUpScreen = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
@@ -27,7 +28,7 @@ const SignUpScreen = ({ navigation }) => {
     };
   
     try {
-      const response = await fetch('http://192.168.1.135:8080/api/users', {
+      const response = await fetch(`${API_BASE_URL}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),

@@ -49,6 +49,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
+    @Column
+    private Boolean profileCompleted = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

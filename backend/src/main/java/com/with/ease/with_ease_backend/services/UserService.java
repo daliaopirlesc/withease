@@ -50,7 +50,10 @@ public class UserService {
                 user.getGender(),
                 user.getOccupation(),
                 user.getHealthInfo(),
-                user.getGoals().stream().toList()
+                user.getGoals().stream().toList(),
+                Boolean.TRUE.equals(user.getProfileCompleted())
+
+
         );
     }
 
@@ -72,7 +75,9 @@ public class UserService {
                 user.getGender(),
                 user.getOccupation(),
                 user.getHealthInfo(),
-                user.getGoals().stream().toList()
+                user.getGoals().stream().toList(),
+                Boolean.TRUE.equals(user.getProfileCompleted())
+
         );
     }
 
@@ -101,7 +106,9 @@ public class UserService {
                         user.getGender(),
                         user.getOccupation(),
                         user.getHealthInfo(),
-                        user.getGoals().stream().toList()))
+                        user.getGoals().stream().toList(),
+                        Boolean.TRUE.equals(user.getProfileCompleted())
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -117,7 +124,9 @@ public class UserService {
                         user.getGender(),
                         user.getOccupation(),
                         user.getHealthInfo(),
-                        user.getGoals().stream().toList()));
+                        user.getGoals().stream().toList(),
+                        Boolean.TRUE.equals(user.getProfileCompleted())
+                ));
     }
 
     @Transactional
@@ -172,6 +181,8 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setGoals(goals);
+        user.setProfileCompleted(true);
         userRepository.save(user);
     }
+
 }

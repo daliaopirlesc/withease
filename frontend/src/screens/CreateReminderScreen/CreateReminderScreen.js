@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import * as Notifications from 'expo-notifications';
+import { API_BASE_URL } from '../../config/config';
 
 const CreateReminderScreen = ({ navigation }) => {
   const [message, setMessage] = useState('');
@@ -15,7 +16,7 @@ const CreateReminderScreen = ({ navigation }) => {
     const token = await AsyncStorage.getItem('token');
     const isoTime = time.toISOString();
 
-    const response = await fetch('http://192.168.1.135:8080/api/reminders', {
+    const response = await fetch(`${API_BASE_URL}/api/reminders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

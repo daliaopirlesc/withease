@@ -21,5 +21,7 @@ public class UserResponse {
     private String occupation;
     private String healthInfo;
     private List<String> goals;
+    private boolean profileCompleted;
+
 
 }

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity, Image } 
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
 const SignInScreen = ({ navigation }) => {
   const { height } = useWindowDimensions();
@@ -11,22 +12,44 @@ const SignInScreen = ({ navigation }) => {
 
   const onSignInPressed = async () => {
     try {
-      const response = await fetch('http://192.168.1.135:8080/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         await AsyncStorage.setItem('token', data.token);
-        navigation.navigate('Profile');
+        const savedToken = await AsyncStorage.getItem('token');
+
+        if (savedToken) {
+          const profileResponse = await fetch(`${API_BASE_URL}/api/users/me`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${savedToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          const profileData = await profileResponse.json();
+
+          if (profileData.name) {
+            await AsyncStorage.setItem('userName', profileData.name);
+          }
+          
+          if (profileResponse.ok && profileData.profileCompleted) {
+            navigation.replace('Home');
+          } else {
+            navigation.replace('ProfileSetup');
+          }
+          
+        } else {
+          alert('Token was not saved. Please try again.');
+        }
       } else {
         alert('Login failed: ' + (data.message || 'Invalid credentials'));
       }
@@ -51,17 +74,8 @@ const SignInScreen = ({ navigation }) => {
         resizeMode="contain"
       />
       <Text style={styles.title}>Welcome Back!</Text>
-      <CustomInput
-        placeholder="Email"
-        value={email}
-        setValue={setEmail}
-      />
-      <CustomInput
-        placeholder="Password"
-        value={password}
-        setValue={setPassword}
-        secureTextEntry
-      />
+      <CustomInput placeholder="Email" value={email} setValue={setEmail} />
+      <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry />
       <CustomButton text="Sign In" onPress={onSignInPressed} />
       <TouchableOpacity onPress={onForgotPasswordPressed}>
         <Text style={styles.link}>Forgot Password?</Text>

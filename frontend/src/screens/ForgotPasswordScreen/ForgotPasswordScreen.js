@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
+import { API_BASE_URL } from '../../config/config';
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
     }
   
     try {
-      const response = await fetch('http://192.168.1.135:8080/api/users/forgot-password', {
+      const response = await fetch(`${API_BASE_URL}/api/users/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

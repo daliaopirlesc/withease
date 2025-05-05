@@ -17,6 +17,8 @@ import RemindersScreen from '../screens/RemindersScreen';
 import CreateReminderScreen from '../screens/CreateReminderScreen';
 import MoodHistoryScreen from '../screens/MoodHistoryScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import GratitudeHistoryScreen from '../screens/GratitudeHistoryScreen';
+import StressHistoryScreen from '../screens/StressHistoryScreen';
 
 
 
@@ -115,6 +117,11 @@ const Navigation = () => {
           options={{ headerShown: false }} 
         />
          <Stack.Screen 
+          name="StressHistory" 
+          component={StressHistoryScreen} 
+          options={{ headerShown: false }} 
+        />
+         <Stack.Screen 
           name="FocusBooster" 
           component={FocusBoosterScreen} 
           options={{ headerShown: false }} 
@@ -129,6 +136,13 @@ const Navigation = () => {
           component={GratitudeJournalScreen} 
           options={{ headerShown: false }} 
         />
+        <Stack.Screen 
+          name="GratitudeHistory" 
+          component={GratitudeHistoryScreen} 
+          options={{ headerShown: false }} 
+        />
+
+
         <Stack.Screen 
           name="EveningWindDown" 
           component={EveningWindDownScreen} 

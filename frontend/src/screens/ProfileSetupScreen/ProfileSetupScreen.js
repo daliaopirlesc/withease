@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
 const ProfileSetupScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -26,7 +27,7 @@ const ProfileSetupScreen = ({ navigation }) => {
     };
 
     try {
-      const response = await fetch(`http://192.168.1.135:8080/api/users/me`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

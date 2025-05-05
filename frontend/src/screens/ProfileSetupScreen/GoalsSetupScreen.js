@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
+
 
 const { width } = Dimensions.get('window');
 
@@ -40,13 +42,18 @@ const GoalSetupScreen = ({ navigation }) => {
 
   const onContinuePressed = async () => {
     const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      Alert.alert('Error', 'No token found. Please sign in again.');
+      return;
+    }
+  
+    const goalTitles = selectedGoals.map(id => {
+      const goal = goals.find(g => g.id === id);
+      return goal?.title || '';
+    });
+  
     try {
-      const goalTitles = selectedGoals.map(id => {
-        const goal = goals.find(g => g.id === id);
-        return goal?.title || '';
-      });
-
-      const response = await fetch('http://192.168.1.135:8080/api/users/me/goals', {
+      const response = await fetch(`${API_BASE_URL}/api/users/me/goals`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -54,17 +61,18 @@ const GoalSetupScreen = ({ navigation }) => {
         },
         body: JSON.stringify(goalTitles),
       });
-
+  
       if (response.ok) {
         navigation.replace('Home');
       } else {
         Alert.alert('Error', 'Failed to save goals.');
       }
     } catch (error) {
-      console.error('Error saving goals:', error);
       Alert.alert('Error', 'An unexpected error occurred.');
     }
   };
+  
+  
 
   const onExitPressed = () => {
     navigation.replace('Home');

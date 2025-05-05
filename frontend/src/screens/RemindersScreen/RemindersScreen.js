@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Switch, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { API_BASE_URL } from '../../config/config';
 
 const RemindersScreen = ({ navigation }) => {
   const [reminders, setReminders] = useState([]);
@@ -11,7 +12,7 @@ const RemindersScreen = ({ navigation }) => {
     if (!token) return;
 
     try {
-      const response = await fetch('http://192.168.1.135:8080/api/reminders', {
+      const response = await fetch(`${API_BASE_URL}/api/reminders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -43,7 +44,7 @@ const RemindersScreen = ({ navigation }) => {
     };
 
     try {
-      const response = await fetch(`http://192.168.1.135:8080/api/reminders/${reminder.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reminders/${reminder.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +68,7 @@ const RemindersScreen = ({ navigation }) => {
     if (!token) return;
 
     try {
-      const response = await fetch(`http://192.168.1.135:8080/api/reminders/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reminders/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

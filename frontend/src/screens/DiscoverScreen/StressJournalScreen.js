@@ -8,23 +8,50 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
-const StressJournalScreen = () => {
+const StressJournalScreen = ({ navigation }) => {
   const [journalEntries, setJournalEntries] = useState({
     stressCause: '',
     handlingMethod: '',
     futureStrategy: '',
     positiveDespiteStress: '',
-    physicalFeeling: '',
-    selfCareActivity: '',
-    recurringThoughts: '',
-    gratitudeInStress: '',
-    calmMoment: '',
-    letGo: '',
   });
 
-  const handleSave = () => {
-    alert('Stress Journal saved!');
+  const handleSave = async () => {
+    const fullEntry = `
+      Stress Cause: ${journalEntries.stressCause}
+      Handling Method: ${journalEntries.handlingMethod}
+      Future Strategy: ${journalEntries.futureStrategy}
+      Positive Despite Stress: ${journalEntries.positiveDespiteStress}
+    `;
+
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        alert('You are not logged in.');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/stress-journal`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ entry: fullEntry }),
+      });
+
+      if (response.ok) {
+        alert('Stress Journal saved!');
+      } else {
+        alert('Something went wrong.');
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('Failed to save journal.');
+    }
   };
 
   return (
@@ -76,16 +103,17 @@ const StressJournalScreen = () => {
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save Journal</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('StressHistory')}>
+          <Text style={styles.historyLink}>View Past Entries</Text>
+        </TouchableOpacity>
       </ScrollView>
     </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    resizeMode: 'cover',
-  },
+  container: { flex: 1, resizeMode: 'cover' },
   scrollContainer: {
     padding: 20,
     paddingTop: 60,
@@ -110,15 +138,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
   },
-  timeHeader: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  dateText: {
-    fontSize: 18,
-    fontFamily: 'Caveat',
-    color: '#4A4A4A',
-  },
+  timeHeader: { alignItems: 'center', marginBottom: 10 },
+  dateText: { fontSize: 18, fontFamily: 'Caveat', color: '#4A4A4A' },
   heading: {
     fontSize: 18,
     color: '#444',
@@ -149,13 +170,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '80%',
     elevation: 3,
-    marginBottom: 30,
-    marginTop: 20,
+    marginBottom: 10,
   },
   saveButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Caveat',
+  },
+  historyLink: {
+    fontSize: 16,
+    color: '#00796b',
+    textAlign: 'center',
+    marginTop: 10,
+    textDecorationLine: 'underline',
     fontFamily: 'Caveat',
   },
 });

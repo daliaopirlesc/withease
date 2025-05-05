@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
+
 
 const MoodHistoryScreen = () => {
   const [moods, setMoods] = useState([]);
@@ -11,7 +13,7 @@ const MoodHistoryScreen = () => {
       if (!token) return;
 
       try {
-        const response = await fetch('http://192.168.1.135:8080/api/mood-log', {
+        const response = await fetch(`${API_BASE_URL}/api/mood-log`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
