@@ -1,9 +1,7 @@
 package com.with.ease.with_ease_backend.services;
 
 import com.with.ease.with_ease_backend.dto.UserResponse;
-import com.with.ease.with_ease_backend.models.Role;
-import com.with.ease.with_ease_backend.models.User;
-import com.with.ease.with_ease_backend.models.PasswordResetToken;
+import com.with.ease.with_ease_backend.models.*;
 import com.with.ease.with_ease_backend.repositories.UserRepository;
 import com.with.ease.with_ease_backend.repositories.PasswordResetTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +15,9 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import com.with.ease.with_ease_backend.repositories.MoodLogRepository;
+import com.with.ease.with_ease_backend.repositories.StressJournalRepository;
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final MoodLogRepository moodLogRepository;
+    private final StressJournalRepository stressJournalRepository;
 
     @Autowired
     private EmailService emailService;
@@ -184,5 +188,40 @@ public class UserService {
         user.setProfileCompleted(true);
         userRepository.save(user);
     }
+    public double calculateCombinedStressLevel(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<MoodLog> moodLogs = moodLogRepository.findByUserAndTimestampAfter(
+                user, LocalDateTime.now().minusDays(7));
+
+        List<StressJournal> stressEntries = stressJournalRepository.findByUserAndTimestampAfter(
+                user, LocalDateTime.now().minusDays(7));
+
+        double avgMoodStress = moodLogs.stream()
+                .mapToInt(MoodLog::getStressLevel)
+                .average()
+                .orElse(0.0) / 10.0;
+
+        double inferredJournalStress = stressEntries.stream()
+                .mapToDouble(this::inferStressFromEntry)
+                .average()
+                .orElse(0.0);
+
+        return 0.5 * avgMoodStress + 0.5 * inferredJournalStress;
+    }
+
+    private double inferStressFromEntry(StressJournal entry) {
+        String content = entry.getEntry().toLowerCase();
+        int score = 0;
+        String[] keywords = {"stress", "anxious", "overwhelmed", "worried", "panic", "nervous"};
+
+        for (String keyword : keywords) {
+            if (content.contains(keyword)) score++;
+        }
+
+        return Math.min(1.0, score / (double) keywords.length);
+    }
+
 
 }

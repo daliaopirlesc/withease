@@ -95,4 +95,12 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
     }
+
+    @GetMapping("/me/stress-level")
+    public ResponseEntity<Map<String, Double>> getCombinedStressLevel(Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        double level = userService.calculateCombinedStressLevel(email);
+        return ResponseEntity.ok(Map.of("level", level));
+    }
+
 }

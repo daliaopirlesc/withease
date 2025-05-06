@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: '#E6F4EA',
     justifyContent: 'center',
   },
   title: {

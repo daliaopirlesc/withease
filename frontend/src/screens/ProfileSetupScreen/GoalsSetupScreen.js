@@ -132,7 +132,7 @@ const GoalSetupScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: '#E6F4EA',
     paddingHorizontal: 20,
     paddingTop: 40,
     alignItems: 'center',

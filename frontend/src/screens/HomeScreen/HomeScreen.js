@@ -1,61 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProgressBar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { API_BASE_URL } from '../../config/config';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
-  const stressLevel = 0.6;
+  const [stressLevel, setStressLevel] = useState(0);
   const dailyTip = 'Drink water and take a short walk.';
 
   useEffect(() => {
-    const loadUserName = async () => {
+    const loadUserData = async () => {
       const name = await AsyncStorage.getItem('userName');
+      const token = await AsyncStorage.getItem('token');
+
       if (name) setUserName(name);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/users/me/stress-level`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (res.ok) setStressLevel(data.level || 0);
+      } catch (error) {
+        console.error('Failed to fetch stress level:', error);
+      }
     };
-    loadUserName();
+
+    loadUserData();
   }, []);
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome, {userName}!</Text>
-        <Text style={styles.quote}>Take a deep breath and relax.</Text>
-      </View>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <Text style={styles.header}>Welcome, {userName}!</Text>
+        <Text style={styles.subheader}>Take a deep breath and relax.</Text>
 
-      <View style={styles.mainContent}>
-        <Text style={styles.sectionTitle}>Your Stress Level</Text>
-        <ProgressBar progress={stressLevel} color="#00796b" style={styles.progressBar} />
-        <Text style={styles.stressLevelText}>{Math.round(stressLevel * 100)}% Stress</Text>
-
-        <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LogMood')}>
-            <Icon name="emoticon-happy-outline" size={30} color="#00796b" />
-            <Text style={styles.actionText}>Log Mood</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Insights')}>
-            <Icon name="chart-line" size={30} color="#00796b" />
-            <Text style={styles.actionText}>View Insights</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Reminders')}>
-            <Icon name="bell-ring-outline" size={30} color="#00796b" />
-            <Text style={styles.actionText}>Reminders</Text>
-          </TouchableOpacity>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Your Stress Level</Text>
+          <ProgressBar progress={stressLevel} color="#00796b" style={styles.progressBar} />
+          <Text style={styles.stressLevelText}>{Math.floor(stressLevel * 100)}% Stress</Text>
         </View>
 
-        <View style={styles.dailyTip}>
-          <Text style={styles.tipTitle}>Daily Tip</Text>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.quickActions}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LogMood')}>
+              <Icon name="emoticon-happy-outline" size={30} color="#00796b" />
+              <Text style={styles.actionText}>Log Mood</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Insights')}>
+              <Icon name="chart-line" size={30} color="#00796b" />
+              <Text style={styles.actionText}>Insights</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Reminders')}>
+              <Icon name="bell-ring-outline" size={30} color="#00796b" />
+              <Text style={styles.actionText}>Reminders</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Daily Tip</Text>
           <Text style={styles.tipText}>{dailyTip}</Text>
         </View>
-      </View>
+      </ScrollView>
 
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem}>
           <Icon name="home" size={30} color="#00796b" />
-          <Text style={styles.navText}>Home</Text>
+          <Text style={styles.navTextActive}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Discover')}>
           <Icon name="compass-outline" size={30} color="#555" />
@@ -73,51 +92,58 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
-    paddingHorizontal: 20,
+    backgroundColor: '#E6F4EA',
+    paddingTop: 40,
+  },
+  scroll: {
+    padding: 20,
+    paddingBottom: 100,
   },
   header: {
-    marginTop: 60,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 32,
     color: '#00796b',
+    fontFamily: 'DMSerifDisplay-Regular',
+    textAlign: 'center',
   },
-  quote: {
+  subheader: {
     fontSize: 16,
     color: '#555',
-    marginTop: 5,
+    textAlign: 'center',
+    marginBottom: 20,
   },
-  mainContent: {
-    flex: 1,
-    justifyContent: 'center',
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
     color: '#00796b',
+    fontFamily: 'DMSerifDisplay-Regular',
     marginBottom: 10,
     textAlign: 'center',
   },
   progressBar: {
-    height: 10,
-    borderRadius: 5,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#ccc',
-    marginBottom: 10,
+    marginVertical: 10,
   },
   stressLevelText: {
     fontSize: 16,
     color: '#555',
     textAlign: 'center',
-    marginBottom: 20,
   },
   quickActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginVertical: 20,
+    marginTop: 10,
   },
   actionButton: {
     alignItems: 'center',
@@ -127,20 +153,11 @@ const styles = StyleSheet.create({
     color: '#00796b',
     marginTop: 5,
   },
-  dailyTip: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  tipTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#00796b',
-    marginBottom: 5,
-  },
   tipText: {
     fontSize: 16,
     color: '#555',
     textAlign: 'center',
+    fontStyle: 'italic',
   },
   bottomNav: {
     flexDirection: 'row',
@@ -149,10 +166,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ccc',
     backgroundColor: '#fff',
-    width: '110%',
     position: 'absolute',
     bottom: 0,
     left: 0,
+    right: 0,
   },
   navItem: {
     alignItems: 'center',
@@ -160,6 +177,12 @@ const styles = StyleSheet.create({
   navText: {
     fontSize: 12,
     color: '#555',
+    marginTop: 5,
+  },
+  navTextActive: {
+    fontSize: 12,
+    color: '#00796b',
+    fontWeight: 'bold',
     marginTop: 5,
   },
 });

@@ -5,9 +5,11 @@ import com.with.ease.with_ease_backend.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface StressJournalRepository extends JpaRepository<StressJournal, Long> {
     List<StressJournal> findByUserOrderByTimestampDesc(User user);
+    List<StressJournal> findByUserAndTimestampAfter(User user, LocalDateTime after);
 }

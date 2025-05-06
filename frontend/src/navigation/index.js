@@ -28,7 +28,7 @@ const Stack = createStackNavigator();
 const Navigation = () => {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="SignUp">
+        <Stack.Navigator initialRouteName="Home">
 
       
 
@@ -187,18 +187,18 @@ const Navigation = () => {
         <Stack.Screen 
           name="SignIn" 
           component={SignInScreen} 
-          options={{ title: 'Sign In' }} 
+          options={{ headerShown: false }}
           
         />
         <Stack.Screen 
           name="SignUp" 
           component={SignUpScreen} 
-          options={{ title: 'Sign Up' }} 
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="ForgotPassword" 
           component={ForgotPasswordScreen} 
-          options={{ title: 'Forgot Password' }} 
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="Splash" 
