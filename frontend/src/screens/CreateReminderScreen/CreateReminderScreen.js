@@ -112,36 +112,59 @@ const CreateReminderScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#e6f7f7', padding: 20 },
-  title: { paddingTop: 60, fontSize: 24, fontWeight: 'bold', color: '#00796b', marginBottom: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: '#E6F4EA',
+    padding: 20,
+    paddingTop: 60,
+  },
+  title: {
+    fontSize: 28,
+    fontFamily: 'DMSerifDisplay-Regular',
+    color: '#00796b',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   input: {
     backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
+    padding: 14,
+    borderRadius: 10,
     marginBottom: 15,
     borderColor: '#ccc',
     borderWidth: 1,
+    fontSize: 16,
   },
   pickerButton: {
-    padding: 12,
     backgroundColor: '#fff',
-    borderRadius: 8,
+    padding: 14,
+    borderRadius: 10,
     borderColor: '#ccc',
     borderWidth: 1,
     marginBottom: 15,
   },
-  pickerButtonText: { fontSize: 16, color: '#333' },
+  pickerButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
   picker: {
     backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
     marginBottom: 20,
   },
   saveButton: {
     backgroundColor: '#00796b',
-    paddingVertical: 15,
-    borderRadius: 8,
+    paddingVertical: 16,
+    borderRadius: 10,
     alignItems: 'center',
   },
-  saveButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
+
 
 export default CreateReminderScreen;

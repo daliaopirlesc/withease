@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
 const { width } = Dimensions.get('window');
 
@@ -15,40 +24,52 @@ const getColorForCause = (cause) => {
   return colors[cause] || '#ccc';
 };
 
-const InsightsScreen = () => {
-  const [timeRange, setTimeRange] = useState('week');
+const InsightsScreen = ({ navigation }) => {
+  const [moodData, setMoodData] = useState([]);
   const [dailyStreak, setDailyStreak] = useState(0);
 
-  const stressData = {
-    week: [3, 5, 4, 6, 7, 5, 4],
-    month: [5, 6, 4, 7, 5, 4, 6, 7, 8, 4, 5, 6, 7, 5, 6, 5],
-    all: [3, 4, 5, 5, 6, 4, 5],
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await AsyncStorage.getItem('token');
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/mood-log`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const result = await response.json();
+        if (response.ok) setMoodData(result);
+      } catch (err) {
+        console.error('Error fetching mood data:', err);
+      }
+    };
+    fetchData();
+  }, []);
 
-  const moodFrequency = {
-    happy: 5,
-    calm: 3,
-    sad: 2,
-    anxious: 4,
-  };
-
-  const moodEntries = [
-    { date: '2024-11-15', cause: 'Work' },
-    { date: '2024-11-16', cause: 'School' },
-    { date: '2024-11-16', cause: 'Relationship' },
-    { date: '2024-11-17', cause: 'Work' },
-    { date: '2024-11-17', cause: 'Work' },
-  ];
-
-  const data = stressData[timeRange] || [];
-  const averageStress = data.length > 0 ? (data.reduce((a, b) => a + b, 0) / data.length).toFixed(1) : 'N/A';
-
-  const causeCounts = moodEntries.reduce((acc, entry) => {
-    acc[entry.cause] = (acc[entry.cause] || 0) + 1;
+  const groupedByDate = moodData.reduce((acc, entry) => {
+    const date = entry.timestamp.split('T')[0];
+    acc[date] = acc[date] || [];
+    acc[date].push(entry);
     return acc;
   }, {});
 
-  const totalEntries = moodEntries.length;
+  const labels = Object.keys(groupedByDate).slice(-7);
+  const stressValues = labels.map(date => {
+    const entries = groupedByDate[date];
+    const avg = entries.reduce((sum, e) => sum + (e.stressLevel || 0), 0) / entries.length;
+    return avg;
+  });
+
+  const moodFrequency = {};
+  const causeCounts = {};
+  const moodDates = new Set();
+
+  moodData.forEach(({ mood, cause, timestamp }) => {
+    moodFrequency[mood] = (moodFrequency[mood] || 0) + 1;
+    causeCounts[cause] = (causeCounts[cause] || 0) + 1;
+    moodDates.add(timestamp.split('T')[0]);
+  });
+
   const pieChartData = Object.entries(causeCounts).map(([cause, count]) => ({
     name: cause,
     population: count,
@@ -58,42 +79,32 @@ const InsightsScreen = () => {
   }));
 
   useEffect(() => {
-    const uniqueDates = [...new Set(moodEntries.map((entry) => entry.date))];
+    const today = new Date();
     let streak = 0;
-    let yesterday = new Date().toISOString().split('T')[0];
-
-    for (let i = uniqueDates.length - 1; i >= 0; i--) {
-      if (uniqueDates.includes(yesterday)) {
-        streak++;
-        yesterday = new Date(new Date(yesterday).setDate(new Date(yesterday).getDate() - 1))
-          .toISOString()
-          .split('T')[0];
-      } else {
-        break;
-      }
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      if (moodDates.has(dateStr)) streak++;
+      else break;
     }
     setDailyStreak(streak);
-  }, [moodEntries]);
+  }, [moodData]);
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Your Weekly Insights</Text>
+      <Text style={styles.title}>Your Mood Insights</Text>
 
-      <Text style={styles.sectionTitle}>Stress Levels</Text>
-      {data.length > 0 ? (
+      <Text style={styles.sectionTitle}>Stress Over Time</Text>
+      {stressValues.length > 0 ? (
         <LineChart
           data={{
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{ data }],
+            labels,
+            datasets: [{ data: stressValues }],
           }}
           width={width - 40}
           height={200}
-          chartConfig={{
-            backgroundColor: '#fff',
-            backgroundGradientFrom: '#e6f7f7',
-            backgroundGradientTo: '#fff',
-            color: (opacity = 1) => `rgba(0, 121, 107, ${opacity})`,
-          }}
+          chartConfig={chartConfig}
           style={styles.chart}
         />
       ) : (
@@ -108,85 +119,92 @@ const InsightsScreen = () => {
         }}
         width={width - 40}
         height={200}
-        chartConfig={{
-          backgroundColor: '#fff',
-          backgroundGradientFrom: '#e6f7f7',
-          backgroundGradientTo: '#fff',
-          color: (opacity = 1) => `rgba(0, 121, 107, ${opacity})`,
-        }}
+        chartConfig={chartConfig}
         style={styles.chart}
       />
 
-    
-      <Text style={styles.sectionTitle}>Top Causes of Stress</Text>
+      <Text style={styles.sectionTitle}>Top Triggers</Text>
       <PieChart
         data={pieChartData}
         width={width - 40}
         height={200}
-        chartConfig={{
-          backgroundColor: '#fff',
-          color: (opacity = 1) => `rgba(0, 121, 107, ${opacity})`,
-        }}
+        chartConfig={chartConfig}
         accessor="population"
         backgroundColor="transparent"
         paddingLeft="15"
         style={styles.chart}
       />
 
-
       <Text style={styles.sectionTitle}>Daily Streak</Text>
       <Text style={styles.streakText}>
-        You’ve logged entries for {dailyStreak} consecutive days.
+        You’ve logged moods for {dailyStreak} consecutive days.
       </Text>
 
-
-      <View style={styles.summary}>
-        <Text>Average Stress Level: {averageStress}/10</Text>
-        <Text>Number of Entries: {totalEntries}</Text>
-      </View>
+      <TouchableOpacity
+        style={styles.insightButton}
+        onPress={() => navigation.navigate('WeeklyInsight')}
+      >
+        <Text style={styles.insightButtonText}>See Weekly Summary</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
+};
+
+const chartConfig = {
+  backgroundColor: '#fff',
+  backgroundGradientFrom: '#e6f7f7',
+  backgroundGradientTo: '#fff',
+  color: (opacity = 1) => `rgba(0, 121, 107, ${opacity})`,
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: '#E6F4EA',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontFamily: 'DMSerifDisplay-Regular',
+    color: '#00796b',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#00796b',
     paddingTop: 35,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#00796b', 
+    fontSize: 20,
+    fontFamily: 'DMSerifDisplay-Regular',
+    color: '#00796b',
     marginBottom: 10,
   },
   chart: {
     marginVertical: 10,
+    borderRadius: 16,
   },
   noDataText: {
     fontSize: 16,
     color: '#555',
     textAlign: 'center',
-    marginTop: 20,
+    marginVertical: 20,
   },
   streakText: {
     fontSize: 16,
     color: '#00796b',
-    marginBottom: 20,
+    textAlign: 'center',
+    marginVertical: 20,
   },
-  summary: {
-    marginTop: 20,
+  insightButton: {
+    backgroundColor: '#00796b',
     padding: 15,
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  insightButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

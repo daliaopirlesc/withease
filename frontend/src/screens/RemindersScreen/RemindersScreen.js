@@ -127,30 +127,31 @@ const RemindersScreen = ({ navigation }) => {
   );
 };
 
+// ... aceeași logică, doar actualizează styles și partea de listă
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: '#E6F4EA',
     paddingTop: 60,
     paddingHorizontal: 20,
   },
   header: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontFamily: 'DMSerifDisplay-Regular',
     color: '#00796b',
     marginBottom: 20,
     textAlign: 'center',
   },
   reminderBox: {
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
+    borderRadius: 15,
+    padding: 20,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
-    position: 'relative',
+    shadowRadius: 4,
+    elevation: 2,
   },
   deleteIcon: {
     position: 'absolute',
@@ -186,13 +187,18 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: '#00796b',
-    padding: 15,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
     position: 'absolute',
     bottom: 20,
     left: 20,
     right: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   addButtonText: {
     color: '#fff',

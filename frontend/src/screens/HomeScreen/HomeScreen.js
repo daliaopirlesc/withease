@@ -7,18 +7,31 @@ import { API_BASE_URL } from '../../config/config';
 
 const { width } = Dimensions.get('window');
 
+const dailyTips = [
+  'Take a deep breath and smile.',
+  'Drink more water today.',
+  'Go for a 10-minute walk.',
+  'Write down something positive.',
+  'Stretch for a few minutes.',
+  'Disconnect from your phone for 1 hour.',
+  'Compliment yourself today.',
+];
+
 const HomeScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
   const [stressLevel, setStressLevel] = useState(0);
-  const dailyTip = 'Drink water and take a short walk.';
+  const [dailyTip, setDailyTip] = useState('');
+
+  useEffect(() => {
+    const today = new Date().getDay();
+    setDailyTip(dailyTips[today % dailyTips.length]);
+  }, []);
 
   useEffect(() => {
     const loadUserData = async () => {
       const name = await AsyncStorage.getItem('userName');
       const token = await AsyncStorage.getItem('token');
-
       if (name) setUserName(name);
-
       try {
         const res = await fetch(`${API_BASE_URL}/api/users/me/stress-level`, {
           headers: {
@@ -31,7 +44,6 @@ const HomeScreen = ({ navigation }) => {
         console.error('Failed to fetch stress level:', error);
       }
     };
-
     loadUserData();
   }, []);
 

@@ -10,7 +10,8 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 import { ProfileSetupScreen, GoalsSetupScreen } from '../screens/ProfileSetupScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LogMoodScreen from '../screens/LogMoodScreen';
-import InsightsScreen from '../screens/InsightsScreen';
+import { InsightsScreen, WeeklyInsightScreen } from '../screens/InsightsScreen';
+
 import {DiscoverScreen, BreatheRelaxScreen, GratitudeJournalScreen, EveningWindDownScreen, FocusBoosterScreen, StressJournalScreen, BodyScanMeditationScreen, CalmBreakScreen, GuidedMeditationScreen, MindfulCheckInScreen, MotivationalChallengesScreen, ProductivityPlannerScreen, ReflectAndGrowScreen } from '../screens/DiscoverScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import RemindersScreen from '../screens/RemindersScreen';
@@ -160,13 +161,16 @@ const Navigation = () => {
           component={InsightsScreen} 
           options={{ headerShown: false }} 
         />
+        <Stack.Screen 
+          name="WeeklyInsight" 
+          component={WeeklyInsightScreen} 
+          options={{ headerShown: false }} 
+        />
            <Stack.Screen 
           name="LogMood" 
           component={LogMoodScreen} 
           options={{ headerShown: false }} 
         />
-
-
 
 
         <Stack.Screen 

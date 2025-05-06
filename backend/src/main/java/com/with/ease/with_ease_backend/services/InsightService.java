@@ -28,15 +28,12 @@ public class InsightService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-
         List<Challenge> completedChallenges = challengeRepository.findByUserAndCompleted(user, true);
         List<Meditation> completedMeditations = meditationRepository.findByUserAndCompleted(user, true);
         List<Habit> completedHabits = habitRepository.findByUserAndCompleted(user, true);
 
-
         int currentStreak = calculateCurrentStreak(user);
         int bestStreak = calculateBestStreak(user);
-
 
         Map<String, Object> insights = new HashMap<>();
         insights.put("completedChallenges", completedChallenges.size());
@@ -50,7 +47,6 @@ public class InsightService {
     }
 
     private int calculateCurrentStreak(User user) {
-
         LocalDate today = LocalDate.now();
         int streak = 0;
         while (activityLoggedOnDate(user, today.minusDays(streak))) {
@@ -60,12 +56,11 @@ public class InsightService {
     }
 
     private int calculateBestStreak(User user) {
-
         LocalDate today = LocalDate.now();
         int maxStreak = 0;
         int currentStreak = 0;
 
-        for (int i = 0; i < 100; i++) { // Check up to last 100 days
+        for (int i = 0; i < 100; i++) {
             if (activityLoggedOnDate(user, today.minusDays(i))) {
                 currentStreak++;
                 maxStreak = Math.max(maxStreak, currentStreak);
@@ -77,8 +72,8 @@ public class InsightService {
     }
 
     private boolean activityLoggedOnDate(User user, LocalDate date) {
-        return !challengeRepository.findByUserAndCompletionDate(user, date).isEmpty() ||
-                !meditationRepository.findByUserAndCompletionDate(user, date).isEmpty() ||
-                !habitRepository.findByUserAndCompletionDate(user, date).isEmpty();
+        return !challengeRepository.findByUserAndCompletionDate(user, date).isEmpty()
+                || !meditationRepository.findByUserAndCompletionDate(user, date).isEmpty()
+                || !habitRepository.findByUserAndCompletionDate(user, date).isEmpty();
     }
 }
