@@ -17,6 +17,8 @@ import java.util.Map;
 public class StressJournalService {
     private final StressJournalRepository stressJournalRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
+
 
     private final List<String> negativeKeywords = List.of(
             "anxious", "panic", "tired", "exhausted", "overwhelmed",
@@ -33,6 +35,7 @@ public class StressJournalService {
         journalEntry.setTimestamp(LocalDateTime.now());
 
         stressJournalRepository.save(journalEntry);
+        userService.updateStreak(user.getId());
     }
 
     public List<StressJournalResponse> getEntries(String email) {

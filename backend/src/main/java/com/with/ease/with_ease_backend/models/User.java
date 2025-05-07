@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -91,5 +92,13 @@ public class User implements UserDetails {
     @CollectionTable(name = "user_goals", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "goal")
     private List<String> goals;
+
+    @Column
+    private Integer streak = 0;
+
+
+    @Column
+    private LocalDate lastActivityDate;
+
 
 }

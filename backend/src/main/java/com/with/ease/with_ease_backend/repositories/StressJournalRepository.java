@@ -12,4 +12,5 @@ import java.util.List;
 public interface StressJournalRepository extends JpaRepository<StressJournal, Long> {
     List<StressJournal> findByUserOrderByTimestampDesc(User user);
     List<StressJournal> findByUserAndTimestampAfter(User user, LocalDateTime after);
+
 }

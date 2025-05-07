@@ -15,6 +15,7 @@ import java.util.List;
 public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     public List<Challenge> getAvailableChallenges(String email, int currentStreak) {
         User user = userRepository.findByEmail(email)
@@ -29,5 +30,7 @@ public class ChallengeService {
 
         challenge.setCompleted(true);
         challengeRepository.save(challenge);
+
+        userService.updateStreak(challenge.getUser().getId());
     }
 }

@@ -5,8 +5,12 @@ import com.with.ease.with_ease_backend.models.*;
 import com.with.ease.with_ease_backend.repositories.UserRepository;
 import com.with.ease.with_ease_backend.repositories.PasswordResetTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -55,7 +59,8 @@ public class UserService {
                 user.getOccupation(),
                 user.getHealthInfo(),
                 user.getGoals().stream().toList(),
-                Boolean.TRUE.equals(user.getProfileCompleted())
+                Boolean.TRUE.equals(user.getProfileCompleted()),
+                user.getStreak()
 
 
         );
@@ -80,7 +85,8 @@ public class UserService {
                 user.getOccupation(),
                 user.getHealthInfo(),
                 user.getGoals().stream().toList(),
-                Boolean.TRUE.equals(user.getProfileCompleted())
+                Boolean.TRUE.equals(user.getProfileCompleted()),
+                user.getStreak()
 
         );
     }
@@ -111,7 +117,8 @@ public class UserService {
                         user.getOccupation(),
                         user.getHealthInfo(),
                         user.getGoals().stream().toList(),
-                        Boolean.TRUE.equals(user.getProfileCompleted())
+                        Boolean.TRUE.equals(user.getProfileCompleted()),
+                        user.getStreak()
                 ))
                 .collect(Collectors.toList());
     }
@@ -129,7 +136,8 @@ public class UserService {
                         user.getOccupation(),
                         user.getHealthInfo(),
                         user.getGoals().stream().toList(),
-                        Boolean.TRUE.equals(user.getProfileCompleted())
+                        Boolean.TRUE.equals(user.getProfileCompleted()),
+                        user.getStreak()
                 ));
     }
 
@@ -222,6 +230,24 @@ public class UserService {
 
         return Math.min(1.0, score / (double) keywords.length);
     }
+
+    public void updateStreak(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        LocalDate today = LocalDate.now();
+        LocalDate lastDate = user.getLastActivityDate();
+
+        if (lastDate == null || ChronoUnit.DAYS.between(lastDate, today) > 1) {
+            user.setStreak(1); // reset streak
+        } else if (ChronoUnit.DAYS.between(lastDate, today) == 1) {
+            user.setStreak(user.getStreak() + 1); // increase streak
+        }
+
+        user.setLastActivityDate(today);
+        userRepository.save(user);
+    }
+
 
 
 }

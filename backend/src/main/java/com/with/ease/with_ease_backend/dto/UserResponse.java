@@ -14,7 +14,6 @@ public class UserResponse {
     private String username;
     private String email;
     private String role;
-
     private String name;
     private Integer age;
     private String gender;
@@ -22,6 +21,10 @@ public class UserResponse {
     private String healthInfo;
     private List<String> goals;
     private boolean profileCompleted;
+    private int streak;
+
+
+
 
 
 }

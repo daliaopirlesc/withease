@@ -15,6 +15,8 @@ import java.util.List;
 public class MeditationService {
     private final MeditationRepository meditationRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
+
 
     public List<Meditation> getUserMeditations(String email) {
         User user = userRepository.findByEmail(email)
@@ -43,5 +45,7 @@ public class MeditationService {
 
         meditation.setCompleted(true);
         meditationRepository.save(meditation);
+
+        userService.updateStreak(meditation.getUser().getId());
     }
 }

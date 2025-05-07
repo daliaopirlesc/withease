@@ -15,6 +15,8 @@ import java.util.List;
 public class MoodLogService {
     private final MoodLogRepository moodLogRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
+
 
     public void logMood(String email, String mood, int stressLevel, String cause, String notes) {
         User user = userRepository.findByEmail(email)
@@ -29,6 +31,8 @@ public class MoodLogService {
         moodLog.setTimestamp(LocalDateTime.now());
 
         moodLogRepository.save(moodLog);
+
+        userService.updateStreak(user.getId());
     }
 
 

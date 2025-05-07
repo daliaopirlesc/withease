@@ -59,7 +59,7 @@ const MoodHistoryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: '#E6F4EA',
     paddingTop: 60,
     paddingHorizontal: 20,
   },

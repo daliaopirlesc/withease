@@ -12,4 +12,6 @@ import java.util.List;
 public interface MoodLogRepository extends JpaRepository<MoodLog, Long> {
     List<MoodLog> findByUserOrderByTimestampDesc(User user);
     List<MoodLog> findByUserAndTimestampAfter(User user, LocalDateTime timestamp);
+
+
 }

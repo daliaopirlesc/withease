@@ -17,6 +17,8 @@ import java.util.List;
 public class GratitudeJournalService {
     private final GratitudeJournalRepository gratitudeJournalRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
+
 
     public void addEntry(String email, String entry) {
         User user = userRepository.findByEmail(email)
@@ -28,6 +30,7 @@ public class GratitudeJournalService {
         journalEntry.setTimestamp(LocalDateTime.now());
 
         gratitudeJournalRepository.save(journalEntry);
+        userService.updateStreak(user.getId());
     }
 
     public List<GratitudeJournalResponse> getEntries(String email) {
