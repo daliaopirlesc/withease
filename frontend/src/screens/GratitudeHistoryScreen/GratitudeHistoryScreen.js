@@ -5,11 +5,12 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../config/config';
 
-const GratitudeHistoryScreen = () => {
+const GratitudeHistoryScreen = ({ navigation }) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +30,7 @@ const GratitudeHistoryScreen = () => {
 
         const data = await response.json();
         if (response.ok) {
-          setEntries(data); // e deja sortat în backend
+          setEntries(data);
         } else {
           console.error('Error fetching entries');
         }
@@ -50,7 +51,8 @@ const GratitudeHistoryScreen = () => {
     </View>
   );
 
-  if (loading) return <ActivityIndicator size="large" color="#00796b" />;
+  if (loading)
+    return <ActivityIndicator size="large" color="#00796b" style={{ flex: 1, justifyContent: 'center' }} />;
 
   return (
     <View style={styles.container}>
@@ -59,27 +61,50 @@ const GratitudeHistoryScreen = () => {
         data={entries}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
+      <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+        <Text style={styles.buttonText}>Back</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#e6f7f7', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#00796b', marginBottom: 20 },
+  container: { flex: 1, backgroundColor: '#E6F4EA', paddingTop: 60, paddingHorizontal: 20 },
+  title: {
+    fontSize: 28,
+    fontFamily: 'DMSerifDisplay-Regular',
+    color: '#00796b',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   entryContainer: {
     backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
+    borderRadius: 15,
+    padding: 20,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  date: { fontSize: 12, color: '#777', marginBottom: 5 },
+  date: { fontSize: 12, color: '#777', marginBottom: 8 },
   text: { fontSize: 16, color: '#333' },
+  button: {
+    backgroundColor: '#00796b',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default GratitudeHistoryScreen;

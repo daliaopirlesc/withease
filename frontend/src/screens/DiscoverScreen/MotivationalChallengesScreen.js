@@ -17,22 +17,13 @@ const dailyChallenges = [
   { title: 'Body Awareness', icon: 'yoga', challenge: "Do a 5-minute stretch while focusing on your breath." },
 ];
 
-const allChallenges = [
-  { id: '1', title: '7-Day Mindfulness Challenge', streakRequired: 3, description: 'Complete small mindful tasks every day for a week.' },
-  { id: '2', title: '3-Day Stress-Free Challenge', streakRequired: 10, description: 'Daily exercises to reduce stress levels.' },
-  { id: '3', title: 'Boost Self-Esteem Challenge', streakRequired: 15, description: 'Activities to enhance confidence and self-worth.' },
-  { id: '4', title: 'Digital Detox 1-Week Challenge', streakRequired: 30, description: 'One week of controlled screen time and focus.' },
-  { id: '5', title: 'Mindfulness Mastery Challenge', streakRequired: 50, description: 'Advanced mindfulness exercises to master focus.' },
-];
-
-const MotivationalChallengesScreen = ({ route }) => {
-  const userStreak = route.params?.streak || 0; 
+const MotivationalChallengesScreen = ({ route, navigation }) => {
+  const userStreak = route.params?.streak || 0;
   const [dailyChallenge, setDailyChallenge] = useState(dailyChallenges[0]);
   const [completedChallenges, setCompletedChallenges] = useState(0);
   const [fadeAnim] = useState(new Animated.Value(1));
 
   useEffect(() => {
-    
     const challengeIndex = new Date().getDate() % dailyChallenges.length;
     setDailyChallenge(dailyChallenges[challengeIndex]);
   }, []);
@@ -56,7 +47,6 @@ const MotivationalChallengesScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-
         <Text style={styles.header}>Today's Challenge</Text>
         <Animated.View style={[styles.dailyChallengeContainer, { opacity: fadeAnim }]}>
           <View style={styles.challengeTitleContainer}>
@@ -74,29 +64,37 @@ const MotivationalChallengesScreen = ({ route }) => {
           </View>
         </Animated.View>
 
-        <Text style={styles.header}>Your Challenge Progress</Text>
-        {allChallenges.map((challenge) => (
-          <TouchableOpacity
-            key={challenge.id}
-            style={[
-              styles.challengeCard,
-              { backgroundColor: userStreak >= challenge.streakRequired ? '#00796b' : '#ccc' },
-            ]}
-            disabled={userStreak < challenge.streakRequired}
-          >
-            <View style={styles.challengeCardHeader}>
-              <Icon name={userStreak >= challenge.streakRequired ? "lock-open-outline" : "lock"} size={24} color="#fff" />
-              <Text style={styles.challengeTitle}>{challenge.title}</Text>
-            </View>
-            <Text style={styles.challengeDescription}>{challenge.description}</Text>
-            <Text style={styles.streakRequirement}>
-              {userStreak >= challenge.streakRequired
-                ? "Unlocked"
-                : `Unlocks at Streak ${challenge.streakRequired}`}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <Text style={styles.header}>Mini-Games</Text>
+        <View
+          style={[
+            styles.challengeCard,
+            { backgroundColor: userStreak >= 3 ? '#00796b' : '#ccc' },
+          ]}
+        >
+          <View style={styles.challengeCardHeader}>
+            <Icon
+              name={userStreak >= 3 ? 'gamepad-variant' : 'lock'}
+              size={24}
+              color="#fff"
+            />
+            <Text style={styles.challengeTitle}>Bubble Pop – Tap your stress away</Text>
+          </View>
+          <Text style={styles.challengeDescription}>
+            A relaxing mini-game to reduce stress by popping negative thoughts.
+          </Text>
+          <Text style={styles.streakRequirement}>
+            {userStreak >= 3 ? 'Unlocked' : 'Unlocks at Streak 3'}
+          </Text>
 
+          {userStreak >= 3 && (
+            <TouchableOpacity
+              style={styles.completeChallengeButton}
+              onPress={() => navigation.navigate('BubblePopGame')}
+            >
+              <Text style={styles.buttonText}>Play</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
@@ -107,7 +105,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e6f7f7',
     paddingHorizontal: 20,
-    paddingTop: 60
+    paddingTop: 60,
   },
   scrollContainer: {
     paddingBottom: 100,
@@ -167,7 +165,7 @@ const styles = StyleSheet.create({
   challengeCard: {
     padding: 15,
     borderRadius: 10,
-    marginVertical: 5,
+    marginVertical: 10,
   },
   challengeCardHeader: {
     flexDirection: 'row',
@@ -183,6 +181,7 @@ const styles = StyleSheet.create({
   challengeDescription: {
     fontSize: 14,
     color: '#fff',
+    marginVertical: 5,
   },
   streakRequirement: {
     fontSize: 14,

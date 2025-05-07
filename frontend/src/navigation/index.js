@@ -20,6 +20,7 @@ import MoodHistoryScreen from '../screens/MoodHistoryScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import GratitudeHistoryScreen from '../screens/GratitudeHistoryScreen';
 import StressHistoryScreen from '../screens/StressHistoryScreen';
+import  BubblePopGameScreen  from '../screens/BubblePopGameScreen';
 
 
 
@@ -29,7 +30,7 @@ const Stack = createStackNavigator();
 const Navigation = () => {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator initialRouteName="Splash">
 
       
 
@@ -87,6 +88,12 @@ const Navigation = () => {
           component={MotivationalChallengesScreen} 
           options={{ headerShown: false }} 
         />
+        <Stack.Screen 
+          name="BubblePopGame" 
+          component={BubblePopGameScreen} 
+          options={{ headerShown: false }} 
+        />
+
         
         <Stack.Screen 
           name="MindfulCheckIn" 
