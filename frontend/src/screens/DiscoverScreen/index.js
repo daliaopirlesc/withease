@@ -12,6 +12,7 @@ export { default as MindfulCheckInScreen } from './MindfulCheckInScreen';
 export { default as MotivationalChallengesScreen } from './MotivationalChallengesScreen';
 export { default as ProductivityPlannerScreen } from './ProductivityPlannerScreen';
 export { default as ReflectAndGrowScreen } from './ReflectAndGrowScreen';
+export { default as GoalActivitiesScreen } from './GoalActivitiesScreen';
 
 
 

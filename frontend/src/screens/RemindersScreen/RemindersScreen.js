@@ -127,7 +127,7 @@ const RemindersScreen = ({ navigation }) => {
   );
 };
 
-// ... aceeași logică, doar actualizează styles și partea de listă
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

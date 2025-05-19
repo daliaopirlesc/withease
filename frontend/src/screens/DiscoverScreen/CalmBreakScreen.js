@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Animated,
   Easing,
+  ScrollView
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -49,7 +50,7 @@ const CalmBreakScreen = ({ navigation }) => {
       useNativeDriver: true,
     }).start(() => {
       setIsTimerActive(false);
-      navigation.navigate("Home"); 
+      navigation.navigate("Home");
     });
   };
 
@@ -59,11 +60,8 @@ const CalmBreakScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      
-        <View style={styles.titleContainer}>
-          <Text style={styles.header}>Take a Calm Break 🌿</Text>
-        </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.header}>Take a Calm Break 🌿</Text>
 
       <Animated.View style={[styles.visualizationBox, { opacity: animation }]}>
         <Text style={styles.visualizationText}>Imagine yourself in a peaceful place...</Text>
@@ -75,7 +73,7 @@ const CalmBreakScreen = ({ navigation }) => {
       </TouchableOpacity>
 
       {!isTimerActive && (
-        <View style={styles.timerContainer}>
+        <View style={styles.timerSection}>
           <Text style={styles.timerText}>Choose a relaxation time:</Text>
           <View style={styles.timerButtons}>
             <TouchableOpacity style={styles.timerButton} onPress={() => handleStartTimer(60)}>
@@ -93,115 +91,129 @@ const CalmBreakScreen = ({ navigation }) => {
 
       {isTimerActive && <Text style={styles.timerCountdown}>Time Remaining: {timer} sec</Text>}
 
-      <TouchableOpacity style={styles.breatheButton} onPress={() => navigation.navigate("BreatheRelax")}>
-        <Icon name="weather-windy" size={24} color="#fff" />
-        <Text style={styles.breatheButtonText}>Try Breathe & Relax</Text>
-      </TouchableOpacity>
-
       {isTimerActive && (
         <TouchableOpacity style={styles.endSessionButton} onPress={handleEndSession}>
           <Text style={styles.endSessionText}>I'm Ready to Continue</Text>
         </TouchableOpacity>
       )}
-    </View>
+
+      <View style={styles.bottomSection}>
+        <TouchableOpacity style={styles.breatheButton} onPress={() => navigation.navigate("BreatheRelax")}>
+          <Icon name="weather-windy" size={24} color="#fff" />
+          <Text style={styles.breatheButtonText}>Try Breathe & Relax</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#E6F4EA',
-    padding: 20,
-    justifyContent: 'center',
+    paddingTop: 60,
+    paddingBottom: 100,
+    paddingHorizontal: 24,
     alignItems: 'center',
   },
-  titleContainer: {
-    paddingTop: 40,
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
   header: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontFamily: 'DMSerifDisplay-Regular',
     color: '#00796b',
     textAlign: 'center',
-    fontFamily: 'DMSerifDisplay-Regular',
-    marginBottom: 20,
+    marginBottom: 40,
   },
   visualizationBox: {
     backgroundColor: '#C3E8D5',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  visualizationText: {
-    fontSize: 18,
-    textAlign: 'center',
-    fontFamily: 'DMSerifDisplay-Regular',
-    color: '#00796b',
-  },
-  affirmationBox: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
-    width: '90%',
+    padding: 30,
+    borderRadius: 16,
+    width: '100%',
+    marginBottom: 50,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
   },
+  visualizationText: {
+    fontSize: 18,
+    textAlign: 'center',
+    fontFamily: 'Georgia',
+    color: '#00796b',
+  },
+  affirmationBox: {
+    backgroundColor: '#fff',
+    padding: 30,
+    borderRadius: 20,
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 50,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
   affirmationText: {
     fontSize: 20,
     textAlign: 'center',
-    fontFamily: 'DMSerifDisplay-Regular',
+    fontFamily: 'Georgia',
     color: '#444',
+    lineHeight: 28,
   },
   tapText: {
     fontSize: 14,
     color: '#888',
-    marginTop: 5,
+    marginTop: 12,
   },
-  timerContainer: {
-    marginBottom: 20,
+  timerSection: {
     alignItems: 'center',
+    marginBottom: 50,
+    width: '100%',
   },
   timerText: {
     fontSize: 18,
-    fontFamily: 'DMSerifDisplay-Regular',
+    fontFamily: 'Georgia',
     color: '#00796b',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   timerButtons: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
   },
   timerButton: {
     backgroundColor: '#00796b',
-    padding: 10,
-    borderRadius: 8,
-    marginHorizontal: 5,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
   },
   timerButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   timerCountdown: {
-    fontSize: 18,
-    fontFamily: 'DMSerifDisplay-Regular',
+    fontSize: 20,
+    fontFamily: 'Georgia',
     color: '#00796b',
-    marginBottom: 20,
+    marginBottom: 40,
+  },
+  bottomSection: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 50,
+    gap: 20,
   },
   breatheButton: {
     flexDirection: 'row',
     backgroundColor: '#00796b',
-    padding: 12,
-    borderRadius: 10,
+    padding: 16,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '80%',
-    marginTop: 10,
+    width: '90%',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
   breatheButtonText: {
     color: 'white',
@@ -211,14 +223,14 @@ const styles = StyleSheet.create({
   },
   endSessionButton: {
     backgroundColor: '#444',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 30,
+    borderRadius: 14,
   },
   endSessionText: {
     color: 'white',
     fontSize: 18,
-    fontFamily: 'DMSerifDisplay-Regular',
+    fontFamily: 'Georgia',
   },
 });
 

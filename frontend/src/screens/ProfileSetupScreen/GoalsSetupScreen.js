@@ -11,19 +11,21 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../../config/config';
+import goals from '../../data/goalsWithActivities';
+
 
 
 const { width } = Dimensions.get('window');
 
-const goals = [
-  { id: '1', title: 'Reduce Anxiety', description: 'Helps you feel calmer over time.', icon: 'meditation' },
-  { id: '2', title: 'Develop Gratitude', description: 'Improves your overall positivity.', icon: 'leaf' },
-  { id: '3', title: 'Increase Happiness', description: 'Enhances your daily mood.', icon: 'emoticon-happy-outline' },
-  { id: '4', title: 'Reduce Stress', description: 'Promotes relaxation and focus.', icon: 'weather-sunny' },
-  { id: '5', title: 'Better Sleep', description: 'Improves your sleep quality.', icon: 'bed' },
-  { id: '6', title: 'Build Self Esteem', description: 'Boosts your confidence.', icon: 'account-star' },
-  { id: '7', title: 'Improve Focus', description: 'Enhances your productivity.', icon: 'eye' },
-];
+// const goals = [
+//   { id: '1', title: 'Reduce Anxiety', description: 'Helps you feel calmer over time.', icon: 'meditation' },
+//   { id: '2', title: 'Develop Gratitude', description: 'Improves your overall positivity.', icon: 'leaf' },
+//   { id: '3', title: 'Increase Happiness', description: 'Enhances your daily mood.', icon: 'emoticon-happy-outline' },
+//   { id: '4', title: 'Reduce Stress', description: 'Promotes relaxation and focus.', icon: 'weather-sunny' },
+//   { id: '5', title: 'Better Sleep', description: 'Improves your sleep quality.', icon: 'bed' },
+//   { id: '6', title: 'Build Self Esteem', description: 'Boosts your confidence.', icon: 'account-star' },
+//   { id: '7', title: 'Improve Focus', description: 'Enhances your productivity.', icon: 'eye' },
+// ];
 
 const GoalSetupScreen = ({ navigation }) => {
   const [selectedGoals, setSelectedGoals] = useState([]);

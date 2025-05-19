@@ -32,6 +32,11 @@ const ProfileScreen = ({ navigation }) => {
     fetchUser();
   }, []);
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('token');
+    navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+  };
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -72,6 +77,10 @@ const ProfileScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('MoodHistory')}>
             <Text style={styles.buttonText}>Mood History</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.card}>
@@ -108,18 +117,13 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E6F4EA', paddingTop: 30 },
   scroll: { padding: 20, paddingBottom: 100 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#E6F4EA' },
-  logo: {
-    width: 90,
-    height: 90,
-    alignSelf: 'center',
-    marginBottom: 15,
-  },
+  logo: { width: 90, height: 90, alignSelf: 'center', marginBottom: 15 },
   title: { fontSize: 26, fontFamily: 'DMSerifDisplay-Regular', color: '#00796b', textAlign: 'center' },
   subtitle: { textAlign: 'center', color: '#555', marginTop: 5 },
   streakBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF9C4', // buttery yellow
+    backgroundColor: '#FFF9C4',
     alignSelf: 'center',
     paddingVertical: 6,
     paddingHorizontal: 15,
@@ -158,6 +162,13 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     backgroundColor: '#00796b',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  logoutButton: {
+    backgroundColor: '#c62828',
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 10,

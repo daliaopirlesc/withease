@@ -12,7 +12,7 @@ import HomeScreen from '../screens/HomeScreen';
 import LogMoodScreen from '../screens/LogMoodScreen';
 import { InsightsScreen, WeeklyInsightScreen } from '../screens/InsightsScreen';
 
-import {DiscoverScreen, BreatheRelaxScreen, GratitudeJournalScreen, EveningWindDownScreen, FocusBoosterScreen, StressJournalScreen, BodyScanMeditationScreen, CalmBreakScreen, GuidedMeditationScreen, MindfulCheckInScreen, MotivationalChallengesScreen, ProductivityPlannerScreen, ReflectAndGrowScreen } from '../screens/DiscoverScreen';
+import {DiscoverScreen, BreatheRelaxScreen, GratitudeJournalScreen, EveningWindDownScreen, FocusBoosterScreen, StressJournalScreen, BodyScanMeditationScreen, CalmBreakScreen, GuidedMeditationScreen, MindfulCheckInScreen, MotivationalChallengesScreen, ProductivityPlannerScreen, ReflectAndGrowScreen, GoalActivitiesScreen } from '../screens/DiscoverScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import RemindersScreen from '../screens/RemindersScreen';
 import CreateReminderScreen from '../screens/CreateReminderScreen';
@@ -25,12 +25,13 @@ import  BubblePopGameScreen  from '../screens/BubblePopGameScreen';
 
 
 
+
 const Stack = createStackNavigator();
 
 const Navigation = () => {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Splash">
+        <Stack.Navigator initialRouteName="SignIn">
 
       
 
@@ -76,6 +77,12 @@ const Navigation = () => {
         <Stack.Screen 
           name="Discover" 
           component={DiscoverScreen} 
+          options={{ headerShown: false }} 
+        />
+
+          <Stack.Screen 
+          name="GoalActivities" 
+          component={GoalActivitiesScreen} 
           options={{ headerShown: false }} 
         />
          <Stack.Screen 

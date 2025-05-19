@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,37 +10,54 @@ import {
   ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import allGoals from '../../data/goalsWithActivities';
+import { API_BASE_URL } from '../../config/config';
 
 const DiscoverScreen = ({ navigation }) => {
-  const browseGoals = [
-    { id: '1', title: 'Fall Asleep', image: require('../../../assets/images/fall_asleep.png'), screen: 'FallAsleepScreen' },
-    { id: '2', title: 'Reduce Stress & Anxiety', image: require('../../../assets/images/reduce_stress.png'), screen: 'ReduceStressScreen' },
-    { id: '3', title: 'Learn to Meditate', image: require('../../../assets/images/meditate.png'), screen: 'LearnMeditationScreen' },
-    { id: '4', title: 'Build a Daily Habit', image: require('../../../assets/images/daily_habit.png'), screen: 'DailyHabitScreen' },
-  ];
-
   const activities = [
     { id: '1', title: 'Body Scan Meditation', screen: 'BodyScanMeditation' },
     { id: '2', title: 'Breathe & Relax', screen: 'BreatheRelax' },
-    { id: '3', title: 'Calm Break', screen: 'CalmBreak' },
-    { id: '4', title: 'Evening Wind-Down', screen: 'EveningWindDown' },
     { id: '5', title: 'Focus Booster', screen: 'FocusBooster' },
     { id: '6', title: 'Gratitude Journal', screen: 'GratitudeJournal' },
     { id: '7', title: 'Guided Meditation', screen: 'GuidedMeditation' },
-    { id: '8', title: 'Guided Relaxation', screen: 'GuidedRelaxation' },
     { id: '9', title: 'Mindful Check-In', screen: 'MindfulCheckIn' },
     { id: '10', title: 'Mood Logging', screen: 'LogMood' },
     { id: '11', title: 'Motivational Challenges', screen: 'MotivationalChallenges' },
     { id: '12', title: 'Productivity Planner', screen: 'ProductivityPlanner' },
-    { id: '13', title: 'Reflect & Grow', screen: 'ReflectAndGrow' },
     { id: '14', title: 'Stress Journal', screen: 'StressJournal' }
   ].sort((a, b) => a.title.localeCompare(b.title));
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [userGoals, setUserGoals] = useState([]);
 
   const filteredActivities = activities.filter((activity) =>
     activity.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        const goalTitles = data.goals || [];
+        const matchedGoals = allGoals.filter(goal => goalTitles.includes(goal.title));
+        setUserGoals(matchedGoals);
+      } catch (error) {
+        console.error('Failed to load user goals:', error);
+      }
+    };
+
+    fetchGoals();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -57,19 +74,20 @@ const DiscoverScreen = ({ navigation }) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <Text style={styles.sectionTitle}>Browse by Goal</Text>
+        <Text style={styles.sectionTitle}>Recommended for You</Text>
         <FlatList
-          data={browseGoals}
+          data={userGoals}
           keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
+          contentContainerStyle={styles.goalsList}
+          renderItem={({ item: goal }) => (
             <TouchableOpacity
               style={styles.goalCard}
-              onPress={() => navigation.navigate(item.screen)}
+              onPress={() => navigation.navigate('GoalActivities', { goal })}
             >
-              <Image source={item.image} style={styles.goalImage} />
-              <Text style={styles.goalTitle}>{item.title}</Text>
+              <Icon name={goal.icon} size={36} color="#00796b" style={{ marginBottom: 10 }} />
+              <Text style={styles.goalTitle}>{goal.title}</Text>
             </TouchableOpacity>
           )}
         />
@@ -137,6 +155,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontFamily: 'DMSerifDisplay-Regular',
   },
+  goalsList: {
+    paddingVertical: 5,
+    paddingRight: 10,
+  },
   goalCard: {
     backgroundColor: '#fff',
     borderRadius: 15,
@@ -149,18 +171,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
   },
-  goalImage: {
-    width: 80,
-    height: 80,
-    marginBottom: 10,
+  goalTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#00796b',
+    textAlign: 'center',
   },
   activitiesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
   },
   activityCard: {
-    width: '48%',
+    width: '100%',
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 15,
@@ -169,6 +190,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
+  },
+  activityTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#00796b',
   },
   bottomNav: {
     flexDirection: 'row',
@@ -182,10 +208,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  activityTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  navItem: {
+    alignItems: 'center',
+  },
+  navText: {
+    fontSize: 12,
+    color: '#555',
+  },
+  navTextActive: {
+    fontSize: 12,
     color: '#00796b',
+    fontWeight: 'bold',
   },
 });
 

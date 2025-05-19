@@ -6,13 +6,20 @@ import {
   StyleSheet,
   Animated,
   Easing,
+  Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const FOCUS_DURATION = 25 * 60;
+const SHORT_BREAK = 5 * 60;
+const LONG_BREAK = 10 * 60;
+
 const FocusBoosterScreen = () => {
-  const [timeLeft, setTimeLeft] = useState(1800);
+  const [timeLeft, setTimeLeft] = useState(FOCUS_DURATION);
   const [isRunning, setIsRunning] = useState(false);
-  const [selectedTime, setSelectedTime] = useState(1800);
+  const [isBreak, setIsBreak] = useState(false);
+  const [cycleCount, setCycleCount] = useState(0);
+  const [infoVisible, setInfoVisible] = useState(false);
   const animation = useState(new Animated.Value(1))[0];
 
   useEffect(() => {
@@ -22,6 +29,15 @@ const FocusBoosterScreen = () => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0) {
+      if (isBreak) {
+        setTimeLeft(FOCUS_DURATION);
+        setIsBreak(false);
+      } else {
+        const nextBreak = cycleCount === 3 ? LONG_BREAK : SHORT_BREAK;
+        setTimeLeft(nextBreak);
+        setIsBreak(true);
+        setCycleCount((prev) => (prev === 3 ? 0 : prev + 1));
+      }
       setIsRunning(false);
     }
     return () => clearInterval(interval);
@@ -29,26 +45,28 @@ const FocusBoosterScreen = () => {
 
   const startPauseTimer = () => {
     setIsRunning(!isRunning);
-    animateFocus();
+    if (!isRunning) animateFocus();
   };
 
   const resetTimer = () => {
-    setTimeLeft(selectedTime);
     setIsRunning(false);
+    setIsBreak(false);
+    setCycleCount(0);
+    setTimeLeft(FOCUS_DURATION);
   };
 
   const animateFocus = () => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(animation, {
-          toValue: 1.1,
-          duration: 1500,
+          toValue: 1.05,
+          duration: 1000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(animation, {
           toValue: 1,
-          duration: 1500,
+          duration: 1000,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
@@ -62,57 +80,52 @@ const FocusBoosterScreen = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const setTimerDuration = (duration) => {
-    setSelectedTime(duration);
-    setTimeLeft(duration);
-    setIsRunning(false);
-  };
-
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Focus Booster</Text>
+      <Text style={styles.title}>Pomodoro Focus Booster</Text>
+
+      <TouchableOpacity style={styles.infoButton} onPress={() => setInfoVisible(true)}>
+        <Icon name="information-outline" size={26} color="#00796b" />
+      </TouchableOpacity>
+
+      <View style={styles.centerContent}>
+        <Text style={styles.sessionLabel}>{isBreak ? 'Break Time' : 'Focus Time'}</Text>
+
+        <Animated.View style={[styles.timerCircle, { transform: [{ scale: animation }] }]}>
+          <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+        </Animated.View>
+
+        <View style={styles.controls}>
+          <TouchableOpacity style={styles.controlButton} onPress={startPauseTimer}>
+            <Icon name={isRunning ? 'pause-circle' : 'play-circle'} size={60} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.controlButton} onPress={resetTimer}>
+            <Icon name="restart" size={60} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.message}>
+          {isRunning
+            ? isBreak
+              ? 'Relax and recharge...'
+              : 'Stay focused and do your best!'
+            : 'Press play to begin your session.'}
+        </Text>
       </View>
 
-      <Text style={styles.subHeader}>Choose your session duration</Text>
-
-      <View style={styles.timerOptions}>
-        <TouchableOpacity
-          style={[styles.timerButton, selectedTime === 900 && styles.selectedTimer]}
-          onPress={() => setTimerDuration(900)}
-        >
-          <Text style={styles.timerButtonText}>15 min</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.timerButton, selectedTime === 1800 && styles.selectedTimer]}
-          onPress={() => setTimerDuration(1800)}
-        >
-          <Text style={styles.timerButtonText}>30 min</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.timerButton, selectedTime === 3600 && styles.selectedTimer]}
-          onPress={() => setTimerDuration(3600)}
-        >
-          <Text style={styles.timerButtonText}>1 hour</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Animated.View style={[styles.timerCircle, { transform: [{ scale: animation }] }]}>
-        <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-      </Animated.View>
-
-      <View style={styles.controls}>
-        <TouchableOpacity style={styles.button} onPress={startPauseTimer}>
-          <Icon name={isRunning ? "pause-circle" : "play-circle"} size={50} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={resetTimer}>
-          <Icon name="restart" size={50} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.motivationText}>
-        {isRunning ? "Stay focused. You're doing great!" : "Take a deep breath and start fresh!"}
-      </Text>
+      <Modal visible={infoVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>What is Pomodoro?</Text>
+            <Text style={styles.modalText}>
+              The Pomodoro Technique is a simple time management method created by Francesco Cirillo. You work for 25 minutes, then take a short break. After 4 focus sessions, enjoy a longer break. It's designed to boost focus, reduce fatigue, and improve productivity.
+            </Text>
+            <TouchableOpacity onPress={() => setInfoVisible(false)} style={styles.modalCloseButton}>
+              <Text style={styles.modalCloseText}>Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -120,76 +133,98 @@ const FocusBoosterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#E6F4EA',
+    paddingTop: 60,
     paddingHorizontal: 20,
   },
-  headerContainer: {
+  title: {
+    fontSize: 28,
+    fontFamily: 'DMSerifDisplay-Regular',
+    color: '#00796b',
+    textAlign: 'center',
+    marginBottom: 0,
+  },
+  infoButton: {
     position: 'absolute',
     top: 60,
-    width: '100%',
+    right: 20,
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    fontSize: 30,
-    fontWeight: 'bold',
+  sessionLabel: {
+    fontSize: 18,
     color: '#00796b',
-  },
-  subHeader: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 20,
-  },
-  timerOptions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  timerButton: {
-    backgroundColor: '#b2dfdb',
-    borderRadius: 20,
-    padding: 12,
-    marginHorizontal: 5,
-  },
-  selectedTimer: {
-    backgroundColor: '#00796b',
-  },
-  timerButtonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: 'bold',
+    marginBottom: 40,
   },
   timerCircle: {
-    width: 300,
-    height: 300,
-    borderRadius: 175,
+    width: 265,
+    height: 265,
+    borderRadius: 130,
     backgroundColor: '#00796b',
     justifyContent: 'center',
     alignItems: 'center',
-    opacity: 0.8,
-    marginBottom: 20,
+    marginBottom: 25,
   },
   timerText: {
-    fontSize: 45,
+    fontSize: 48,
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'DMSerifDisplay-Regular',
   },
   controls: {
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginVertical: 20,
+    marginBottom: 20,
   },
-  button: {
-    marginHorizontal: 15,
+  controlButton: {
+    marginHorizontal: 20,
   },
-  motivationText: {
+  message: {
     fontSize: 16,
     color: '#00796b',
     textAlign: 'center',
-    marginTop: 10,
     fontStyle: 'italic',
+    marginBottom: 30,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 25,
+    borderRadius: 16,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 22,
+    color: '#00796b',
+    fontFamily: 'DMSerifDisplay-Regular',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#444',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalCloseButton: {
+    backgroundColor: '#00796b',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  modalCloseText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
