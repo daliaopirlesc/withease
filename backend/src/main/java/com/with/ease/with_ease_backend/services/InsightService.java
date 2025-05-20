@@ -1,11 +1,10 @@
 package com.with.ease.with_ease_backend.services;
 
 import com.with.ease.with_ease_backend.models.Challenge;
-import com.with.ease.with_ease_backend.models.Meditation;
+
 import com.with.ease.with_ease_backend.models.Habit;
 import com.with.ease.with_ease_backend.models.User;
 import com.with.ease.with_ease_backend.repositories.ChallengeRepository;
-import com.with.ease.with_ease_backend.repositories.MeditationRepository;
 import com.with.ease.with_ease_backend.repositories.HabitRepository;
 import com.with.ease.with_ease_backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class InsightService {
     private final ChallengeRepository challengeRepository;
-    private final MeditationRepository meditationRepository;
+
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
 
@@ -29,7 +28,7 @@ public class InsightService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Challenge> completedChallenges = challengeRepository.findByUserAndCompleted(user, true);
-        List<Meditation> completedMeditations = meditationRepository.findByUserAndCompleted(user, true);
+
         List<Habit> completedHabits = habitRepository.findByUserAndCompleted(user, true);
 
         int currentStreak = calculateCurrentStreak(user);
@@ -37,9 +36,8 @@ public class InsightService {
 
         Map<String, Object> insights = new HashMap<>();
         insights.put("completedChallenges", completedChallenges.size());
-        insights.put("completedMeditations", completedMeditations.size());
+
         insights.put("completedHabits", completedHabits.size());
-        insights.put("totalActivities", completedChallenges.size() + completedMeditations.size() + completedHabits.size());
         insights.put("currentStreak", currentStreak);
         insights.put("bestStreak", bestStreak);
 
@@ -73,7 +71,7 @@ public class InsightService {
 
     private boolean activityLoggedOnDate(User user, LocalDate date) {
         return !challengeRepository.findByUserAndCompletionDate(user, date).isEmpty()
-                || !meditationRepository.findByUserAndCompletionDate(user, date).isEmpty()
+
                 || !habitRepository.findByUserAndCompletionDate(user, date).isEmpty();
     }
 }

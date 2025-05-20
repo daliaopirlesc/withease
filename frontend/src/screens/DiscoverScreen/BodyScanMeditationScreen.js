@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Svg, { Path } from 'react-native-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
 const FullBodySilhouette = ({ highlightedArea }) => {
   const getColor = (area) => (highlightedArea === area ? '#FFD54F' : '#E0E0E0');
@@ -37,10 +39,28 @@ const BodyScanMeditationScreen = () => {
 
   useEffect(() => {
     let timer;
-    if (isMeditating && currentStep < steps.length) {
-      timer = setTimeout(() => {
-        setCurrentStep((prev) => prev + 1);
-      }, 8000);
+    if (isMeditating) {
+      if (currentStep < steps.length) {
+        timer = setTimeout(() => {
+          setCurrentStep((prev) => prev + 1);
+        }, 8000);
+      } else if (currentStep === steps.length) {
+        const saveProgress = async () => {
+          const token = await AsyncStorage.getItem('token');
+          await fetch(`${API_BASE_URL}/api/meditation-progress`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              meditationTitle: 'Body Scan Meditation',
+              duration: 10,
+            }),
+          });
+        };
+        saveProgress();
+      }
     }
     return () => clearTimeout(timer);
   }, [isMeditating, currentStep]);
@@ -56,10 +76,12 @@ const BodyScanMeditationScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Body Scan Meditation </Text>
+      <Text style={styles.header}>Body Scan Meditation</Text>
       <FullBodySilhouette highlightedArea={currentArea} />
       <ScrollView contentContainerStyle={styles.textContainer}>
-        <Text style={styles.stepText}>{steps[currentStep]?.text || 'Your body is calm. Remain here as long as you need. ✨'}</Text>
+        <Text style={styles.stepText}>
+          {steps[currentStep]?.text || 'Your body is calm. Remain here as long as you need. ✨'}
+        </Text>
       </ScrollView>
       <View style={styles.progressContainer}>
         {steps.map((_, index) => (
@@ -115,8 +137,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginHorizontal: 5,
   },
-  activeDot: { backgroundColor: '#00796b' },
-  inactiveDot: { backgroundColor: '#ccc' },
+  activeDot: {
+    backgroundColor: '#00796b',
+  },
+  inactiveDot: {
+    backgroundColor: '#ccc',
+  },
   startButton: {
     flexDirection: 'row',
     backgroundColor: '#00796b',

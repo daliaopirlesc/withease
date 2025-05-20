@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'; 
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,32 +10,28 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-const BreatheRelaxScreen = ({ navigation }) => {
+const BreatheRelaxScreen = () => {
   const [isExerciseActive, setIsExerciseActive] = useState(false);
   const [duration, setDuration] = useState(30);
-  const [remainingTime, setRemainingTime] = useState(duration);
+  const [remainingTime, setRemainingTime] = useState(30);
+  const [isPaused, setIsPaused] = useState(false);
+
   const animation = useRef(new Animated.Value(1)).current;
-  const timerRef = useRef(null);
+  const animationRef = useRef(null);
 
   useFocusEffect(
     React.useCallback(() => {
       return () => {
-        clearInterval(timerRef.current);
+        animationRef.current?.stop();
         setIsExerciseActive(false);
         setRemainingTime(duration);
+        setIsPaused(false);
       };
     }, [duration])
   );
 
-  const startBreathingExercise = () => {
-    setIsExerciseActive(true);
-    setRemainingTime(duration);
-    animateBreathing();
-    countdownTimer(duration);
-  };
-
   const animateBreathing = () => {
-    Animated.loop(
+    animationRef.current = Animated.loop(
       Animated.sequence([
         Animated.timing(animation, {
           toValue: 1.5,
@@ -50,20 +46,46 @@ const BreatheRelaxScreen = ({ navigation }) => {
           useNativeDriver: true,
         }),
       ])
-    ).start();
+    );
+    animationRef.current.start();
   };
 
-  const countdownTimer = (time) => {
-    let timer = time;
-    timerRef.current = setInterval(() => {
-      timer -= 1;
-      setRemainingTime(timer);
-      if (timer <= 0) {
-        clearInterval(timerRef.current);
-        setIsExerciseActive(false);
-        Alert.alert("Session Complete", "You've finished your breathing session.");
-      }
+  useEffect(() => {
+    if (!isExerciseActive || isPaused) return;
+
+    animateBreathing();
+
+    const interval = setInterval(() => {
+      setRemainingTime((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          animationRef.current?.stop();
+          setIsExerciseActive(false);
+          Alert.alert('Session Complete', "You've finished your breathing session.");
+          return duration;
+        }
+        return prev - 1;
+      });
     }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isExerciseActive, isPaused]);
+
+  const startBreathingExercise = () => {
+    setIsExerciseActive(true);
+    setIsPaused(false);
+    setRemainingTime(duration);
+  };
+
+  const pauseOrResumeExercise = () => {
+    setIsPaused((prev) => !prev);
+  };
+
+  const stopExercise = () => {
+    animationRef.current?.stop();
+    setIsExerciseActive(false);
+    setIsPaused(false);
+    setRemainingTime(duration);
   };
 
   const handleDurationChange = (newDuration) => {
@@ -73,9 +95,7 @@ const BreatheRelaxScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Breathe & Relax</Text>
-      </View>
+      <Text style={styles.header}>Breathe & Relax</Text>
 
       <Text style={styles.timerText}>{remainingTime} sec</Text>
 
@@ -93,28 +113,32 @@ const BreatheRelaxScreen = ({ navigation }) => {
         </TouchableOpacity>
       )}
 
+      {isExerciseActive && (
+        <View style={styles.controlRow}>
+          <TouchableOpacity style={styles.controlButton} onPress={pauseOrResumeExercise}>
+            <Text style={styles.controlButtonText}>{isPaused ? 'Resume' : 'Pause'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.controlButton, { backgroundColor: '#ccc' }]} onPress={stopExercise}>
+            <Text style={[styles.controlButtonText, { color: '#333' }]}>Stop</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {!isExerciseActive && (
         <View style={styles.durationContainer}>
           <Text style={styles.customizationText}>Choose Duration</Text>
           <View style={styles.timerOptions}>
-            <TouchableOpacity
-              style={[styles.timerButton, duration === 30 && styles.selectedTimer]}
-              onPress={() => handleDurationChange(30)}
-            >
-              <Text style={styles.timerButtonText}>30 sec</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.timerButton, duration === 60 && styles.selectedTimer]}
-              onPress={() => handleDurationChange(60)}
-            >
-              <Text style={styles.timerButtonText}>1 min</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.timerButton, duration === 120 && styles.selectedTimer]}
-              onPress={() => handleDurationChange(120)}
-            >
-              <Text style={styles.timerButtonText}>2 min</Text>
-            </TouchableOpacity>
+            {[30, 60, 120].map((time) => (
+              <TouchableOpacity
+                key={time}
+                style={[styles.timerButton, duration === time && styles.selectedTimer]}
+                onPress={() => handleDurationChange(time)}
+              >
+                <Text style={styles.timerButtonText}>
+                  {time === 30 ? '30 sec' : time === 60 ? '1 min' : '2 min'}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       )}
@@ -125,59 +149,58 @@ const BreatheRelaxScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: '#E6F4EA',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
   },
-  headerContainer: {
-    position: 'absolute',
-    top: 60,
-    width: '100%',
-    alignItems: 'center',
-  },
   header: {
-    fontSize: 30,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontFamily: 'DMSerifDisplay-Regular',
     color: '#00796b',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   timerText: {
     fontSize: 24,
+    fontFamily: 'Caveat',
     fontWeight: 'bold',
     color: '#00796b',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   circle: {
     width: 250,
     height: 250,
     borderRadius: 125,
     backgroundColor: '#00796b',
-    opacity: 0.4,
+    opacity: 0.3,
   },
   breathingText: {
     fontSize: 28,
+    fontFamily: 'Caveat',
     color: '#00796b',
-    fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: 25,
   },
   startButton: {
     backgroundColor: '#00796b',
     borderRadius: 10,
-    padding: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
     marginTop: 30,
   },
   startButtonText: {
     color: '#fff',
     fontSize: 18,
+    fontFamily: 'Caveat',
     fontWeight: 'bold',
   },
   durationContainer: {
-    marginTop: 20,
+    marginTop: 30,
     alignItems: 'center',
   },
   customizationText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Caveat',
     color: '#00796b',
     marginBottom: 10,
   },
@@ -189,16 +212,34 @@ const styles = StyleSheet.create({
   timerButton: {
     backgroundColor: '#b2dfdb',
     borderRadius: 20,
-    padding: 12,
-    marginHorizontal: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginHorizontal: 6,
   },
   selectedTimer: {
     backgroundColor: '#00796b',
   },
   timerButtonText: {
     fontSize: 16,
+    fontFamily: 'Caveat',
     color: '#fff',
     fontWeight: 'bold',
+  },
+  controlRow: {
+    flexDirection: 'row',
+    marginTop: 20,
+    gap: 10,
+  },
+  controlButton: {
+    backgroundColor: '#00796b',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+  },
+  controlButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Caveat',
   },
 });
 

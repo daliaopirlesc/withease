@@ -155,9 +155,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sessionLabel: {
-    fontSize: 18,
+    fontSize: 30,
     color: '#00796b',
     marginBottom: 40,
+    fontFamily: 'Caveat',
   },
   timerCircle: {
     width: 265,
@@ -184,11 +185,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   message: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#00796b',
     textAlign: 'center',
-    fontStyle: 'italic',
+    
     marginBottom: 30,
+    fontFamily: 'Caveat',
   },
   modalOverlay: {
     flex: 1,

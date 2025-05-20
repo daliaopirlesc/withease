@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,15 @@ import {
   TextInput,
   StyleSheet,
   Animated,
-  ScrollView,
-  
 } from 'react-native';
 import Slider from '@react-native-community/slider';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { API_BASE_URL } from '../../config/config';
 
 const MindfulCheckInScreen = () => {
   const [step, setStep] = useState(1);
   const [fadeAnim] = useState(new Animated.Value(1));
-
   const [feelings, setFeelings] = useState({
     Happy: 0,
     Content: 0,
@@ -23,9 +22,9 @@ const MindfulCheckInScreen = () => {
     Stressed: 0,
     Anxious: 0,
   });
-
   const [moodFactors, setMoodFactors] = useState([]);
   const [reflection, setReflection] = useState('');
+  const navigation = useNavigation();
 
   const fadeTransition = () => {
     Animated.sequence([
@@ -54,10 +53,34 @@ const MindfulCheckInScreen = () => {
     );
   };
 
-  const completeCheckIn = () => {
+  const completeCheckIn = async () => {
     fadeTransition();
     setStep(5);
+    const token = await AsyncStorage.getItem('token');
+    await fetch(`${API_BASE_URL}/api/meditation-progress`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        meditationTitle: 'Mindful Check-In',
+        duration: 15,
+      }),
+    });
   };
+
+  useEffect(() => {
+    if (step === 5) {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 3000,
+        useNativeDriver: true,
+      }).start(() => {
+        navigation.replace('Home');
+      });
+    }
+  }, [step]);
 
   return (
     <View style={styles.container}>
@@ -128,6 +151,7 @@ const MindfulCheckInScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Write about your thoughts..."
+              placeholderTextColor="#aaa"
               value={reflection}
               onChangeText={setReflection}
               multiline
@@ -144,11 +168,11 @@ const MindfulCheckInScreen = () => {
         )}
 
         {step === 5 && (
-          <View style={styles.finalMessageContainer}>
-            <Text style={styles.finalMessage}>
-              "From wherever you've come, that is now far behind you."
+          <Animated.View style={[styles.finalMessageContainer, { opacity: fadeAnim }]}>
+            <Text style={styles.finalMessageBig}>
+              “You’ve done something kind for yourself today.”
             </Text>
-          </View>
+          </Animated.View>
         )}
       </Animated.View>
     </View>
@@ -158,7 +182,7 @@ const MindfulCheckInScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e6f7f7',
+    backgroundColor: '#E6F4EA',
     padding: 20,
     justifyContent: 'center',
   },
@@ -166,10 +190,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontFamily: 'DMSerifDisplay-Regular',
     color: '#00796b',
-    marginBottom: 20,
+    marginBottom: 25,
+    textAlign: 'center',
   },
   feelingRow: {
     width: '100%',
@@ -178,8 +203,8 @@ const styles = StyleSheet.create({
   },
   feelingText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontFamily: 'Caveat',
+    color: '#444',
   },
   slider: {
     width: '100%',
@@ -192,6 +217,7 @@ const styles = StyleSheet.create({
   },
   sliderText: {
     fontSize: 12,
+    fontFamily: 'Caveat',
     color: '#555',
   },
   moodFactorButton: {
@@ -209,6 +235,7 @@ const styles = StyleSheet.create({
   },
   moodFactorText: {
     fontSize: 16,
+    fontFamily: 'Caveat',
     color: '#333',
   },
   input: {
@@ -216,13 +243,16 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     fontSize: 16,
+    fontFamily: 'Caveat',
     width: '100%',
     height: 100,
     textAlignVertical: 'top',
+    borderColor: '#ccc',
+    borderWidth: 1,
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: 20,
+    marginTop: 25,
   },
   nextButton: {
     backgroundColor: '#00796b',
@@ -244,17 +274,21 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
+    fontFamily: 'Caveat',
     fontSize: 16,
   },
   finalMessageContainer: {
     alignItems: 'center',
     marginTop: 50,
   },
-  finalMessage: {
-    fontSize: 20,
+  finalMessageBig: {
+    fontSize: 26,
+    fontFamily: 'Caveat',
     color: '#00796b',
-    fontStyle: 'italic',
     textAlign: 'center',
+    marginHorizontal: 30,
+    marginTop: 50,
+    lineHeight: 34,
   },
 });
 

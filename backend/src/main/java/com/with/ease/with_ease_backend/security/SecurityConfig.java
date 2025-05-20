@@ -36,6 +36,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/reset-password").permitAll()
+                        .requestMatchers("/api/meditation-progress").authenticated()
+
+
 
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/users/me/goals").authenticated()
