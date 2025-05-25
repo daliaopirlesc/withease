@@ -49,7 +49,7 @@ const ProfileSetupScreen = ({ navigation }) => {
   };
 
   const onSkipPressed = () => {
-    navigation.replace('GoalsSetup');
+    navigation.replace('StressAssessment');
   };
 
   return (

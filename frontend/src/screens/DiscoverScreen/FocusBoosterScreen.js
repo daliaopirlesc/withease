@@ -9,6 +9,8 @@ import {
   Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
 const FOCUS_DURATION = 25 * 60;
 const SHORT_BREAK = 5 * 60;
@@ -37,6 +39,7 @@ const FocusBoosterScreen = () => {
         setTimeLeft(nextBreak);
         setIsBreak(true);
         setCycleCount((prev) => (prev === 3 ? 0 : prev + 1));
+        saveProgress();
       }
       setIsRunning(false);
     }
@@ -78,6 +81,26 @@ const FocusBoosterScreen = () => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const saveProgress = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+      await fetch(`${API_BASE_URL}/api/meditation-progress`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          meditationTitle: 'Focus Booster',
+          duration: 25,
+        }),
+      });
+    } catch (error) {
+      console.error('Error saving focus progress:', error);
+    }
   };
 
   return (
@@ -188,7 +211,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#00796b',
     textAlign: 'center',
-    
     marginBottom: 30,
     fontFamily: 'Caveat',
   },

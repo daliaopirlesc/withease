@@ -24,7 +24,7 @@ const DiscoverScreen = ({ navigation }) => {
     { id: '9', title: 'Mindful Check-In', screen: 'MindfulCheckIn' },
     { id: '10', title: 'Mood Logging', screen: 'LogMood' },
     { id: '11', title: 'Motivational Challenges', screen: 'MotivationalChallenges' },
-    { id: '12', title: 'Productivity Planner', screen: 'ProductivityPlanner' },
+    // { id: '12', title: 'Productivity Planner', screen: 'ProductivityPlanner' },
     { id: '14', title: 'Stress Journal', screen: 'StressJournal' }
   ].sort((a, b) => a.title.localeCompare(b.title));
 

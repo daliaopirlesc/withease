@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-
 @Entity
 @Table(name = "users")
 @Getter
@@ -53,6 +52,23 @@ public class User implements UserDetails {
     @Column
     private Boolean profileCompleted = false;
 
+    @Column(name = "stress_score")
+    private Integer stressScore;
+
+    @Column(name = "stress_assessed")
+    private Boolean stressAssessed = false;
+
+    @ElementCollection
+    @CollectionTable(name = "user_goals", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "goal")
+    private List<String> goals;
+
+    @Column
+    private Integer streak = 0;
+
+    @Column
+    private LocalDate lastActivityDate;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(role);
@@ -87,18 +103,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    @ElementCollection
-    @CollectionTable(name = "user_goals", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "goal")
-    private List<String> goals;
-
-    @Column
-    private Integer streak = 0;
-
-
-    @Column
-    private LocalDate lastActivityDate;
-
-
 }

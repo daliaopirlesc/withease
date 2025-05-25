@@ -7,20 +7,27 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../../config/config';
 
 const { width, height } = Dimensions.get('window');
 
-const NEGATIVE_WORDS = [  'stress', 'anxious', 'overwhelmed', 'worried', 'panic',
+const NEGATIVE_WORDS = [
+  'stress', 'anxious', 'overwhelmed', 'worried', 'panic',
   'fear', 'sad', 'angry', 'guilt', 'tired',
   'helpless', 'frustrated', 'insecure', 'lonely', 'upset',
-  'worthless', 'moody', 'burnout', 'shame', 'restless'];
-const POSITIVE_WORDS = [ 'calm', 'peaceful', 'grateful', 'confident', 'strong',
+  'worthless', 'moody', 'burnout', 'shame', 'restless',
+];
+
+const POSITIVE_WORDS = [
+  'calm', 'peaceful', 'grateful', 'confident', 'strong',
   'hopeful', 'energized', 'joyful', 'relaxed', 'brave',
   'motivated', 'balanced', 'loved', 'mindful', 'safe',
-  'resilient', 'serene', 'cheerful', 'stable', 'focused'];
+  'resilient', 'serene', 'cheerful', 'stable', 'focused',
+];
 
 const getRandomWord = () => {
-  const isNegative = Math.random() < 0.6; 
+  const isNegative = Math.random() < 0.6;
   const wordList = isNegative ? NEGATIVE_WORDS : POSITIVE_WORDS;
   const word = wordList[Math.floor(Math.random() * wordList.length)];
   return { word, isNegative };
@@ -52,6 +59,7 @@ const BubblePopGameScreen = ({ navigation }) => {
     const gameTimer = setTimeout(() => {
       clearInterval(gameInterval);
       setGameOver(true);
+      saveProgress();
     }, 60000);
 
     return () => {
@@ -59,6 +67,21 @@ const BubblePopGameScreen = ({ navigation }) => {
       clearTimeout(gameTimer);
     };
   }, []);
+
+  const saveProgress = async () => {
+    const token = await AsyncStorage.getItem('token');
+    await fetch(`${API_BASE_URL}/api/meditation-progress`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        meditationTitle: 'Bubble Pop Game',
+        duration: 5,
+      }),
+    });
+  };
 
   const handlePop = (bubbleId, isNegative) => {
     setBubbles((prev) => prev.filter((b) => b.id !== bubbleId));
@@ -69,34 +92,34 @@ const BubblePopGameScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.timerText}>Pop negative thoughts!</Text>
 
-      {!gameOver && bubbles.map((bubble) => (
-        <Animated.View
-          key={bubble.id}
-          style={[
-            styles.bubble,
-            {
-              left: bubble.left,
-              transform: [{ translateY: bubble.anim }],
-              backgroundColor: bubble.isNegative ? '#ef5350' : '#81c784',
-            },
-          ]}
-        >
-          <TouchableOpacity onPress={() => handlePop(bubble.id, bubble.isNegative)}>
-            <Text style={styles.bubbleText}>{bubble.word}</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      ))}
+      {!gameOver &&
+        bubbles.map((bubble) => (
+          <Animated.View
+            key={bubble.id}
+            style={[
+              styles.bubble,
+              {
+                left: bubble.left,
+                transform: [{ translateY: bubble.anim }],
+                backgroundColor: bubble.isNegative ? '#ef5350' : '#81c784',
+              },
+            ]}
+          >
+            <TouchableOpacity onPress={() => handlePop(bubble.id, bubble.isNegative)}>
+              <Text style={styles.bubbleText}>{bubble.word}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        ))}
 
       {gameOver && (
         <View style={styles.resultBox}>
           <Text style={styles.scoreText}>🎉 You cleared {score} negative thoughts!</Text>
           <TouchableOpacity
-  style={styles.button}
-  onPress={() => navigation.navigate('MotivationalChallenges')}
->
-  <Text style={styles.buttonText}>Back</Text>
-</TouchableOpacity>
-
+            style={styles.button}
+            onPress={() => navigation.navigate('MotivationalChallenges')}
+          >
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -105,10 +128,13 @@ const BubblePopGameScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E0F2F1', paddingTop: 60 },
-  timerText: { fontSize: 32,
+  timerText: {
+    fontSize: 32,
     color: '#00796b',
     fontFamily: 'DMSerifDisplay-Regular',
-    textAlign: 'center', marginBottom: 10 },
+    textAlign: 'center',
+    marginBottom: 10,
+  },
   bubble: {
     position: 'absolute',
     width: 80,

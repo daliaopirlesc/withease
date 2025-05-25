@@ -47,7 +47,6 @@ public class UserController {
         return ResponseEntity.ok("Goals updated successfully.");
     }
 
-
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
         return ResponseEntity.ok(userService.resetPassword(request.get("token"), request.get("password")));
@@ -73,8 +72,6 @@ public class UserController {
         }
     }
 
-
-
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
@@ -97,10 +94,11 @@ public class UserController {
     }
 
     @GetMapping("/me/stress-level")
-    public ResponseEntity<Map<String, Double>> getCombinedStressLevel(Authentication authentication) {
+    public ResponseEntity<Map<String, Double>> getStressAssessmentLevel(Authentication authentication) {
         String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        double level = userService.calculateCombinedStressLevel(email);
-        return ResponseEntity.ok(Map.of("level", level));
+        User user = userService.getUserByEmail(email);
+        Integer score = user.getStressScore() != null ? user.getStressScore() : 0;
+        double normalized = Math.min(1.0, score / 20.0);
+        return ResponseEntity.ok(Map.of("level", normalized));
     }
-
 }

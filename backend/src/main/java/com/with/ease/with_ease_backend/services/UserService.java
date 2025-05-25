@@ -4,24 +4,20 @@ import com.with.ease.with_ease_backend.dto.UserResponse;
 import com.with.ease.with_ease_backend.models.*;
 import com.with.ease.with_ease_backend.repositories.UserRepository;
 import com.with.ease.with_ease_backend.repositories.PasswordResetTokenRepository;
+import com.with.ease.with_ease_backend.repositories.MoodLogRepository;
+import com.with.ease.with_ease_backend.repositories.StressJournalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import com.with.ease.with_ease_backend.repositories.MoodLogRepository;
-import com.with.ease.with_ease_backend.repositories.StressJournalRepository;
-
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +25,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
-
     private final MoodLogRepository moodLogRepository;
     private final StressJournalRepository stressJournalRepository;
 
@@ -60,9 +55,8 @@ public class UserService {
                 user.getHealthInfo(),
                 user.getGoals().stream().toList(),
                 Boolean.TRUE.equals(user.getProfileCompleted()),
-                user.getStreak()
-
-
+                user.getStreak(),
+                user.getStressScore()
         );
     }
 
@@ -86,8 +80,8 @@ public class UserService {
                 user.getHealthInfo(),
                 user.getGoals().stream().toList(),
                 Boolean.TRUE.equals(user.getProfileCompleted()),
-                user.getStreak()
-
+                user.getStreak(),
+                user.getStressScore()
         );
     }
 
@@ -118,7 +112,8 @@ public class UserService {
                         user.getHealthInfo(),
                         user.getGoals().stream().toList(),
                         Boolean.TRUE.equals(user.getProfileCompleted()),
-                        user.getStreak()
+                        user.getStreak(),
+                        user.getStressScore()
                 ))
                 .collect(Collectors.toList());
     }
@@ -137,7 +132,8 @@ public class UserService {
                         user.getHealthInfo(),
                         user.getGoals().stream().toList(),
                         Boolean.TRUE.equals(user.getProfileCompleted()),
-                        user.getStreak()
+                        user.getStreak(),
+                        user.getStressScore()
                 ));
     }
 
@@ -155,27 +151,21 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
     @Transactional
     public String generateResetToken(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         passwordResetTokenRepository.deleteByUser(user);
-
         String token = String.format("%06d", new Random().nextInt(999999));
-
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(token);
         resetToken.setUser(user);
         resetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
-
         passwordResetTokenRepository.save(resetToken);
-
         emailService.sendResetEmail(email, token);
-
         return token;
     }
-
 
     @Transactional
     public String resetPassword(String token, String newPassword) {
@@ -196,58 +186,25 @@ public class UserService {
         user.setProfileCompleted(true);
         userRepository.save(user);
     }
-    public double calculateCombinedStressLevel(String email) {
+
+    public double calculateStressLevelFromAssessment(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        List<MoodLog> moodLogs = moodLogRepository.findByUserAndTimestampAfter(
-                user, LocalDateTime.now().minusDays(7));
-
-        List<StressJournal> stressEntries = stressJournalRepository.findByUserAndTimestampAfter(
-                user, LocalDateTime.now().minusDays(7));
-
-        double avgMoodStress = moodLogs.stream()
-                .mapToInt(MoodLog::getStressLevel)
-                .average()
-                .orElse(0.0) / 10.0;
-
-        double inferredJournalStress = stressEntries.stream()
-                .mapToDouble(this::inferStressFromEntry)
-                .average()
-                .orElse(0.0);
-
-        return 0.5 * avgMoodStress + 0.5 * inferredJournalStress;
-    }
-
-    private double inferStressFromEntry(StressJournal entry) {
-        String content = entry.getEntry().toLowerCase();
-        int score = 0;
-        String[] keywords = {"stress", "anxious", "overwhelmed", "worried", "panic", "nervous"};
-
-        for (String keyword : keywords) {
-            if (content.contains(keyword)) score++;
-        }
-
-        return Math.min(1.0, score / (double) keywords.length);
+        int score = user.getStressScore();
+        return Math.min(1.0, score / 20.0);
     }
 
     public void updateStreak(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
         LocalDate today = LocalDate.now();
         LocalDate lastDate = user.getLastActivityDate();
-
         if (lastDate == null || ChronoUnit.DAYS.between(lastDate, today) > 1) {
-            user.setStreak(1); // reset streak
+            user.setStreak(1);
         } else if (ChronoUnit.DAYS.between(lastDate, today) == 1) {
-            user.setStreak(user.getStreak() + 1); // increase streak
+            user.setStreak(user.getStreak() + 1);
         }
-
         user.setLastActivityDate(today);
         userRepository.save(user);
     }
-
-
-
 }

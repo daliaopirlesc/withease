@@ -79,7 +79,7 @@ public class ReminderController {
     public ResponseEntity<String> deleteReminder(@PathVariable Long id, Authentication authentication) {
         Reminder reminder = reminderService.getReminderById(id);
 
-        // Security check: Ensure user owns this reminder
+
         if (!reminder.getUser().getEmail().equals(authentication.getName())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

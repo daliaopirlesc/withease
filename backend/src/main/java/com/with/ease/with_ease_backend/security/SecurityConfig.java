@@ -36,14 +36,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/reset-password").permitAll()
+                        .requestMatchers("/api/stress-assessment").authenticated()
                         .requestMatchers("/api/meditation-progress").authenticated()
-
-
-
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/users/me/goals").authenticated()
                         .requestMatchers("/api/users/me/stress-level").authenticated()
-
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/mood-log/**").authenticated()
                         .requestMatchers("/api/gratitude-journal/**").authenticated()

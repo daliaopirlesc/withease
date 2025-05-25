@@ -64,7 +64,6 @@ const goals = [
     icon: 'eye',
     activities: [
       'Focus Booster',
-      'Productivity Planner',
       'Mindful Check-In'
     ],
   },

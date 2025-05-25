@@ -7,7 +7,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import SplashScreen from '../screens/SplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
-import { ProfileSetupScreen, GoalsSetupScreen } from '../screens/ProfileSetupScreen';
+import { ProfileSetupScreen, GoalsSetupScreen, StressAssessmentScreen } from '../screens/ProfileSetupScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LogMoodScreen from '../screens/LogMoodScreen';
 import { InsightsScreen, WeeklyInsightScreen } from '../screens/InsightsScreen';
@@ -192,6 +192,14 @@ const Navigation = () => {
           component={ProfileSetupScreen} 
           options={{ headerShown: false }} 
         />
+
+           <Stack.Screen 
+          name="StressAssessment" 
+          component={StressAssessmentScreen} 
+          options={{ headerShown: false }} 
+        />
+
+        
          <Stack.Screen 
           name="GoalsSetup" 
           component={GoalsSetupScreen} 

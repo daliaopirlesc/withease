@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class MeditationProgressService {
 
     private final MeditationProgressRepository progressRepository;
+    private final UserService userService;
 
     public void saveProgress(User user, MeditationProgressRequest request) {
         MeditationProgress progress = new MeditationProgress();
@@ -22,5 +23,7 @@ public class MeditationProgressService {
         progress.setDuration(request.getDuration());
         progress.setCompletedAt(LocalDateTime.now());
         progressRepository.save(progress);
+
+        userService.updateStreak(user.getId());
     }
 }

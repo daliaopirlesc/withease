@@ -22,6 +22,8 @@ public class UserResponse {
     private List<String> goals;
     private boolean profileCompleted;
     private int streak;
+    private Integer stressScore;
+
 
 
 

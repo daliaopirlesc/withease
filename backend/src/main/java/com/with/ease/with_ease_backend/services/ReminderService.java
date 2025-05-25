@@ -15,6 +15,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReminderService {
     private final ReminderRepository reminderRepository;
+    private final UserService userService;
+
 
     public Reminder completeReminder(Long id) {
         return reminderRepository.findById(id).map(reminder -> {
@@ -32,8 +34,11 @@ public class ReminderService {
 
 
     public Reminder createReminder(Reminder reminder) {
-        return reminderRepository.save(reminder);
+        Reminder saved = reminderRepository.save(reminder);
+        userService.updateStreak(reminder.getUser().getId());
+        return saved;
     }
+
 
     public List<Reminder> getUserReminders(User user) {
         return reminderRepository.findByUser(user);

@@ -33,15 +33,26 @@ const HomeScreen = ({ navigation }) => {
       const token = await AsyncStorage.getItem('token');
       if (name) setUserName(name);
       try {
-        const res = await fetch(`${API_BASE_URL}/api/users/me/stress-level`, {
+        const res = await fetch(`${API_BASE_URL}/api/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const data = await res.json();
-        if (res.ok) setStressLevel(data.level || 0);
+        if (res.ok && data.stressScore !== null && typeof data.stressScore === 'number') {
+          const rawScore = Number(data.stressScore);
+          if (!isNaN(rawScore)) {
+            const normalized = Math.min(1, rawScore / 20);
+            setStressLevel(normalized);
+          } else {
+            setStressLevel(0);
+          }
+        } else {
+          setStressLevel(0);
+        }
       } catch (error) {
-        console.error('Failed to fetch stress level:', error);
+        console.error('Failed to fetch stress score:', error);
+        setStressLevel(0);
       }
     };
     loadUserData();
@@ -55,8 +66,10 @@ const HomeScreen = ({ navigation }) => {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Your Stress Level</Text>
-          <ProgressBar progress={stressLevel} color="#00796b" style={styles.progressBar} />
-          <Text style={styles.stressLevelText}>{Math.floor(stressLevel * 100)}% Stress</Text>
+          <ProgressBar progress={!isNaN(stressLevel) ? stressLevel : 0} color="#00796b" style={styles.progressBar} />
+          <Text style={styles.stressLevelText}>
+            {isNaN(stressLevel) ? 'Stress level not available' : `${Math.floor(stressLevel * 100)}% Stress`}
+          </Text>
         </View>
 
         <View style={styles.card}>
@@ -73,6 +86,10 @@ const HomeScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Reminders')}>
               <Icon name="bell-ring-outline" size={30} color="#00796b" />
               <Text style={styles.actionText}>Reminders</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('StressAssessment')}>
+              <Icon name="clipboard-text-outline" size={30} color="#00796b" />
+              <Text style={styles.actionText}>Assessment</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -154,16 +171,20 @@ const styles = StyleSheet.create({
   },
   quickActions: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-around',
     marginTop: 10,
   },
   actionButton: {
     alignItems: 'center',
+    marginBottom: 10,
+    width: '45%',
   },
   actionText: {
     fontSize: 14,
     color: '#00796b',
     marginTop: 5,
+    textAlign: 'center',
   },
   tipText: {
     fontSize: 16,
