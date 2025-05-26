@@ -1,7 +1,9 @@
 package com.with.ease.with_ease_backend.controllers;
 
 import com.with.ease.with_ease_backend.dto.UserResponse;
+import com.with.ease.with_ease_backend.models.StressAssessmentEntry;
 import com.with.ease.with_ease_backend.models.User;
+import com.with.ease.with_ease_backend.repositories.StressAssessmentRepository;
 import com.with.ease.with_ease_backend.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -9,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
@@ -19,18 +23,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final StressAssessmentRepository stressAssessmentRepository;
 
     @PutMapping("/me")
     public ResponseEntity<User> updateUserProfile(@RequestBody User updatedUser, Authentication authentication) {
         String email = ((UserDetails) authentication.getPrincipal()).getUsername();
         User currentUser = userService.getUserByEmail(email);
-
         currentUser.setName(updatedUser.getName());
         currentUser.setAge(updatedUser.getAge());
         currentUser.setGender(updatedUser.getGender());
         currentUser.setOccupation(updatedUser.getOccupation());
         currentUser.setHealthInfo(updatedUser.getHealthInfo());
-
         return ResponseEntity.ok(userService.save(currentUser));
     }
 
@@ -100,5 +103,32 @@ public class UserController {
         Integer score = user.getStressScore() != null ? user.getStressScore() : 0;
         double normalized = Math.min(1.0, score / 20.0);
         return ResponseEntity.ok(Map.of("level", normalized));
+    }
+
+    @GetMapping("/me/stress-history")
+    public ResponseEntity<List<Map<String, Object>>> getStressHistory(Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userService.getUserByEmail(email);
+
+        List<StressAssessmentEntry> entries = stressAssessmentRepository.findByUserOrderByDateDesc(user);
+
+        List<Map<String, Object>> response = entries.stream()
+                .map(entry -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("date", entry.getDate().toString());
+                    map.put("score", entry.getScore());
+                    return map;
+                })
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me/needs-assessment")
+    public ResponseEntity<Map<String, Boolean>> needsAssessment(Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userService.getUserByEmail(email);
+        boolean needs = !stressAssessmentRepository.existsByUserAndDateAfter(user, LocalDate.now().minusDays(7));
+        return ResponseEntity.ok(Map.of("required", needs));
     }
 }

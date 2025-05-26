@@ -21,6 +21,7 @@ import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import GratitudeHistoryScreen from '../screens/GratitudeHistoryScreen';
 import StressHistoryScreen from '../screens/StressHistoryScreen';
 import  BubblePopGameScreen  from '../screens/BubblePopGameScreen';
+import ProgressScreen from '../screens/ProgressScreen';
 
 
 
@@ -40,6 +41,12 @@ const Navigation = () => {
           component={HomeScreen} 
           options={{ headerShown: false }} 
         />
+         <Stack.Screen 
+          name="Progress" 
+          component={ProgressScreen} 
+          options={{ headerShown: false }} 
+        />
+
 
           <Stack.Screen 
           name="ResetPassword" 

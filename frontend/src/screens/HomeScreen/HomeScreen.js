@@ -21,6 +21,7 @@ const HomeScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
   const [stressLevel, setStressLevel] = useState(0);
   const [dailyTip, setDailyTip] = useState('');
+  const [showReminder, setShowReminder] = useState(false);
 
   useEffect(() => {
     const today = new Date().getDay();
@@ -58,6 +59,26 @@ const HomeScreen = ({ navigation }) => {
     loadUserData();
   }, []);
 
+  useEffect(() => {
+    const checkReminder = async () => {
+      const token = await AsyncStorage.getItem('token');
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/users/me/needs-assessment`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (res.ok && data.required === true) {
+          setShowReminder(true);
+        }
+      } catch (err) {
+        console.error('Failed to fetch reminder status:', err);
+      }
+    };
+    checkReminder();
+  }, []);
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -71,6 +92,20 @@ const HomeScreen = ({ navigation }) => {
             {isNaN(stressLevel) ? 'Stress level not available' : `${Math.floor(stressLevel * 100)}% Stress`}
           </Text>
         </View>
+
+        {showReminder && (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Weekly Stress Check-In</Text>
+            <Text style={styles.tipText}>It's time to complete your weekly stress assessment.</Text>
+            <View style={styles.reminderActions}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('StressAssessment')}>
+                <Icon name="clipboard-text-outline" size={30} color="#00796b" />
+                <Text style={styles.actionText}>Start</Text>
+              </TouchableOpacity>
+            
+            </View>
+          </View>
+        )}
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -191,6 +226,11 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  reminderActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 15,
   },
   bottomNav: {
     flexDirection: 'row',
