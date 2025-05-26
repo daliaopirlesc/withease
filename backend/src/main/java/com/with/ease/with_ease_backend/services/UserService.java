@@ -2,10 +2,7 @@ package com.with.ease.with_ease_backend.services;
 
 import com.with.ease.with_ease_backend.dto.UserResponse;
 import com.with.ease.with_ease_backend.models.*;
-import com.with.ease.with_ease_backend.repositories.UserRepository;
-import com.with.ease.with_ease_backend.repositories.PasswordResetTokenRepository;
-import com.with.ease.with_ease_backend.repositories.MoodLogRepository;
-import com.with.ease.with_ease_backend.repositories.StressJournalRepository;
+import com.with.ease.with_ease_backend.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +25,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final MoodLogRepository moodLogRepository;
     private final StressJournalRepository stressJournalRepository;
+    private final StressAssessmentRepository stressAssessmentRepository;
+
+    private final MeditationProgressRepository meditationProgressRepository;
+    private final GratitudeJournalRepository gratitudeJournalRepository;
+
+    private final ReminderRepository reminderRepository;
+
 
     @Autowired
     private EmailService emailService;
@@ -207,4 +212,36 @@ public class UserService {
         user.setLastActivityDate(today);
         userRepository.save(user);
     }
+    public Map<String, Object> buildUserProgress(User user) {
+        Map<String, Object> result = new HashMap<>();
+
+        int stressAssessments = stressAssessmentRepository.findByUserOrderByDateDesc(user).size();
+        Integer lastScore = user.getStressScore() != null ? user.getStressScore() : 0;
+
+        int moodLogs = moodLogRepository.countByUser(user);
+        String commonMood = moodLogRepository.findTopMoodByUser(user, PageRequest.of(0, 1)).stream().findFirst().orElse("N/A");
+
+        int meditationSessions = meditationProgressRepository.countByUser(user);
+        Integer totalMinutes = meditationProgressRepository.sumDurationByUser(user).orElse(0);
+
+        int gratitudeJournals = gratitudeJournalRepository.countByUser(user);
+        int stressJournals = stressJournalRepository.countByUser(user);
+
+        int activeReminders = reminderRepository.countByUserAndActive(user, false);
+        int completedReminders = reminderRepository.countByUserAndActive(user, true);
+
+        result.put("stressAssessments", stressAssessments);
+        result.put("lastStressScore", lastScore);
+        result.put("moodLogs", moodLogs);
+        result.put("commonMood", commonMood);
+        result.put("meditationSessions", meditationSessions);
+        result.put("totalMeditationMinutes", totalMinutes);
+        result.put("gratitudeJournals", gratitudeJournals);
+        result.put("stressJournals", stressJournals);
+        result.put("activeReminders", activeReminders);
+        result.put("completedReminders", completedReminders);
+
+        return result;
+    }
+
 }

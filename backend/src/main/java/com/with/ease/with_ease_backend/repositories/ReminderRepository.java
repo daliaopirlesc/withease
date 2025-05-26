@@ -10,4 +10,5 @@ import java.util.List;
 public interface ReminderRepository extends JpaRepository<Reminder, Long> {
     List<Reminder> findByUser(User user);
     List<Reminder> findByActiveTrueAndTimeBefore(LocalDateTime now);
+    int countByUserAndActive(User user, boolean active);
 }

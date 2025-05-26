@@ -131,4 +131,14 @@ public class UserController {
         boolean needs = !stressAssessmentRepository.existsByUserAndDateAfter(user, LocalDate.now().minusDays(7));
         return ResponseEntity.ok(Map.of("required", needs));
     }
+
+    @GetMapping("/me/progress")
+    public ResponseEntity<Map<String, Object>> getProgress(Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userService.getUserByEmail(email);
+
+        Map<String, Object> result = userService.buildUserProgress(user);
+        return ResponseEntity.ok(result);
+    }
+
 }

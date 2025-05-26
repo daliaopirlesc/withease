@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface GratitudeJournalRepository extends JpaRepository<GratitudeJournal, Long> {
     List<GratitudeJournal> findByUserOrderByTimestampDesc(User user);
-
+    int countByUser(User user);
 }

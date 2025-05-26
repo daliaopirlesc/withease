@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/me/stress-history").authenticated()
                         .requestMatchers("/api/users/me/stress-level").authenticated()
                         .requestMatchers("/api/users/me/needs-assessment").authenticated()
+                        .requestMatchers("/api/users/me/progress").authenticated()
                         .requestMatchers("/api/meditation-progress").authenticated()
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/users/me/goals").authenticated()
@@ -52,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/challenges/**").authenticated()
                         .requestMatchers("/api/meditations/**").authenticated()
                         .requestMatchers("/api/insights/**").authenticated()
+
                         .requestMatchers(HttpMethod.PATCH, "/api/reminders/**").authenticated()
 
 
