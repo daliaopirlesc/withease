@@ -126,6 +126,11 @@ const HomeScreen = ({ navigation }) => {
               <Icon name="clipboard-text-outline" size={30} color="#00796b" />
               <Text style={styles.actionText}>Assessment</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Progress')}>
+  <Icon name="chart-bar" size={30} color="#00796b" />
+  <Text style={styles.actionText}>Progress</Text>
+</TouchableOpacity>
+
           </View>
         </View>
 
